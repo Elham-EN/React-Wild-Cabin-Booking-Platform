@@ -47,3 +47,21 @@ export const variations = {
     }
   `,
 };
+
+const Button = styled.button<{ $color?: string }>`
+  font-size: 1.5em;
+  padding: 10px 20px;
+  background: none;
+  border: 1px solid;
+  border-color: ${(props) => props.$color || "var(--color-brand-500)"};
+  border-radius: var(--border-radius-sm);
+  color: ${(props) => props.$color || "var(--color-brand-500)"};
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  &:hover {
+    background-color: ${(props) => props.$color || "var(--color-brand-500)"};
+    color: var(--color-grey-0);
+  }
+`;
+
+export default Button;
