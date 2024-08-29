@@ -2,9 +2,19 @@ import type { Meta, StoryObj } from "@storybook/react";
 import Button from "./Button";
 import { FaSearch } from "react-icons/fa";
 
+const ButtonWrapper: React.FC<
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { $color?: string }
+> = ({ children, $color, ...props }) => {
+  return (
+    <Button $color={$color} {...props}>
+      {children}
+    </Button>
+  );
+};
+
 // Defines a meta object that configures the component for Storybook.
 const meta: Meta<typeof Button> = {
-  component: Button,
+  component: ButtonWrapper,
   argTypes: {
     children: { control: "text" },
     $color: { control: "color" },
@@ -15,7 +25,7 @@ const meta: Meta<typeof Button> = {
 export default meta;
 
 // It exports several stories:
-type Story = StoryObj<typeof Button>;
+type Story = StoryObj<typeof ButtonWrapper>;
 
 // Each story uses the args property to set the props for the Button component in
 // that particular story.
