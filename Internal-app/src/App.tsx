@@ -2,6 +2,7 @@ import styled from "styled-components";
 import GlobalStyles from "./styles/GlobalStyles";
 import Button from "./ui/Button/Button";
 import Input from "./ui/Input";
+import Heading from "./ui/Headers/Heading";
 
 const StyledApp = styled.main`
   display: flex;
@@ -18,24 +19,17 @@ const HorizontalFlex = styled.div`
   gap: 16px;
 `;
 
-const H1 = styled.h1`
-  font-size: 30px;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  color: var(--color-brand-50);
-  background-color: var(--color-brand-500);
-  border: 1px solid;
-  border-color: black;
-  padding: 10px;
-  text-align: center;
-  width: 600px;
-`;
-
 function App() {
   return (
     <>
       <GlobalStyles />
       <StyledApp>
-        <H1>The Wild Oasis</H1>
+        <Heading color="blue" as="h2">
+          The Wild Oasis
+        </Heading>
+        <Heading color="red" as="h3">
+          The Wild Oasis
+        </Heading>
         <HorizontalFlex>
           <Button $color="green" onClick={() => alert("You have checked in")}>
             Check In
