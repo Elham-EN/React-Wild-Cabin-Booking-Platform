@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import Heading from "../Headers/Heading";
+import Logo from "../Logo";
+import MainNav from "../MainNav";
 
 const StyledSidebar = styled.aside`
   background-color: var(--color-grey-0);
@@ -10,12 +11,16 @@ const StyledSidebar = styled.aside`
   // at the last row (-1 is a special index meaning "last"),
   // effectively spanning both rows
   grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 3.2rem;
 `;
 
 export default function Sidebar(): React.ReactElement {
   return (
     <StyledSidebar>
-      <Heading>Sidebar</Heading>
+      <Logo />
+      <MainNav />
     </StyledSidebar>
   );
 }
