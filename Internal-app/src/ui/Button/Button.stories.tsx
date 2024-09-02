@@ -1,137 +1,137 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import Button from "./Button";
-import { FaSearch } from "react-icons/fa";
+import { StoryObj, Meta } from "@storybook/react";
+import Button from "./Button"; // Adjust the import path as needed
 
-const ButtonWrapper: React.FC<
-  React.ButtonHTMLAttributes<HTMLButtonElement> & { $color?: string }
-> = ({ children, $color, ...props }) => {
-  return (
-    <Button $color={$color} {...props}>
-      {children}
-    </Button>
-  );
-};
-
-// Defines a meta object that configures the component for Storybook.
 const meta: Meta<typeof Button> = {
-  component: ButtonWrapper,
+  title: "Components/Button",
+  component: Button,
   argTypes: {
-    children: { control: "text" },
-    $color: { control: "color" },
+    size: {
+      control: { type: "select" },
+      options: ["small", "medium", "large"],
+    },
+    variation: {
+      control: { type: "select" },
+      options: ["primary", "secondary", "danger"],
+    },
+    children: {
+      control: "text",
+    },
     onClick: { action: "clicked" },
   },
 };
 
 export default meta;
 
-// It exports several stories:
-type Story = StoryObj<typeof ButtonWrapper>;
+type Story = StoryObj<typeof Button>;
 
-// Each story uses the args property to set the props for the Button component in
-// that particular story.
+// Default Button
 export const Default: Story = {
   args: {
-    children: "Button",
+    children: "Default Button",
   },
 };
 
-export const CustomColor: Story = {
-  args: {
-    children: "Custom Color Button",
-    $color: "#FF5733",
-  },
-};
-
-/**
- * Different Sizes
- */
+// Size Variations
 export const SmallButton: Story = {
   args: {
+    size: "small",
     children: "Small Button",
-    style: {
-      fontSize: "0.8em",
-      padding: "15px 30px",
-    },
+  },
+};
+
+export const MediumButton: Story = {
+  args: {
+    size: "medium",
+    children: "Medium Button",
   },
 };
 
 export const LargeButton: Story = {
   args: {
+    size: "large",
     children: "Large Button",
-    style: { fontSize: "2em", padding: "15px 30px" },
   },
 };
 
-/**
- * Different States
- */
-
-export const DisabledButton: Story = {
+// Color Variations
+export const PrimaryButton: Story = {
   args: {
-    children: "Disabled Button",
-    disabled: true,
+    variation: "primary",
+    children: "Primary Button",
   },
 };
 
-export const LoadingButton: Story = {
+export const SecondaryButton: Story = {
   args: {
-    children: "Loading...",
-    disabled: true,
-    style: { opacity: 0.7 },
+    variation: "secondary",
+    children: "Secondary Button",
   },
 };
 
-/**
- * With Icon:
- */
-
-export const ButtonWithIcon: Story = {
+export const DangerButton: Story = {
   args: {
-    children: (
-      <>
-        <FaSearch style={{ marginRight: "5px" }} /> Search
-      </>
-    ),
+    variation: "danger",
+    children: "Danger Button",
   },
 };
 
-/**
- * Different Variants:
- */
-
-export const OutlineButton: Story = {
+// Combinations
+export const SmallPrimaryButton: Story = {
   args: {
-    children: "Outline Button",
-    style: {
-      background: "transparent",
-      borderColor: "var(--color-brand-500)",
-      color: "var(--color-brand-500)",
-    },
+    size: "small",
+    variation: "primary",
+    children: "Small Primary",
   },
 };
 
-export const TextButton: Story = {
+export const LargeSecondaryButton: Story = {
   args: {
-    children: "Text Button",
-    style: {
-      background: "none",
-      border: "none",
-      color: "var(--color-brand-500)",
-      padding: "0",
-    },
+    size: "large",
+    variation: "secondary",
+    children: "Large Secondary",
   },
 };
 
-export const FullWidthButton: Story = {
+// Button with long text
+export const LongTextButton: Story = {
   args: {
-    children: "Full Width Button",
-    style: { width: "100%" },
+    children: "This is a button with a very long text to see how it handles overflow",
   },
 };
 
-export const WithClickAction: Story = {
-  args: {
-    children: "Click for Alert",
-    onClick: () => alert("Button clicked!"),
-  },
+// All Buttons
+export const AllButtons: Story = {
+  render: () => (
+    <div
+      style={{ display: "flex", flexDirection: "column", gap: "10px", width: "300px" }}
+    >
+      <Button size="small" variation="primary">
+        Small Primary
+      </Button>
+      <Button size="small" variation="secondary">
+        Small Secondary
+      </Button>
+      <Button size="small" variation="danger">
+        Small Danger
+      </Button>
+      <Button size="medium" variation="primary">
+        Medium Primary
+      </Button>
+      <Button size="medium" variation="secondary">
+        Medium Secondary
+      </Button>
+      <Button size="medium" variation="danger">
+        Medium Danger
+      </Button>
+      <Button size="large" variation="primary">
+        Large Primary
+      </Button>
+      <Button size="large" variation="secondary">
+        Large Secondary
+      </Button>
+      <Button size="large" variation="danger">
+        Large Danger
+      </Button>
+    </div>
+  ),
 };

@@ -1,6 +1,14 @@
 import styled, { css } from "styled-components";
 
-export const sizes = {
+type Size = "small" | "medium" | "large";
+type Variation = "primary" | "secondary" | "danger";
+
+interface ButtonProps {
+  size?: Size;
+  variation?: Variation;
+}
+
+const sizes = {
   small: css`
     font-size: 1.2rem;
     padding: 0.4rem 0.8rem;
@@ -20,11 +28,10 @@ export const sizes = {
   `,
 };
 
-export const variations = {
+const variations = {
   primary: css`
     color: var(--color-brand-50);
     background-color: var(--color-brand-600);
-
     &:hover {
       background-color: var(--color-brand-700);
     }
@@ -33,7 +40,6 @@ export const variations = {
     color: var(--color-grey-600);
     background: var(--color-grey-0);
     border: 1px solid var(--color-grey-200);
-
     &:hover {
       background-color: var(--color-grey-50);
     }
@@ -41,27 +47,25 @@ export const variations = {
   danger: css`
     color: var(--color-red-100);
     background-color: var(--color-red-700);
-
     &:hover {
       background-color: var(--color-red-800);
     }
   `,
 };
 
-const Button = styled.button<{ $color?: string }>`
-  font-size: 1.5em;
-  padding: 10px 20px;
-  background: none;
-  border: 1px solid;
-  border-color: ${(props) => props.$color || "var(--color-brand-500)"};
+const Button = styled.button<ButtonProps>`
+  border: none;
   border-radius: var(--border-radius-sm);
-  color: ${(props) => props.$color || "var(--color-brand-500)"};
   box-shadow: var(--shadow-md);
   cursor: pointer;
-  &:hover {
-    background-color: ${(props) => props.$color || "var(--color-brand-500)"};
-    color: var(--color-grey-0);
-  }
+
+  ${(props) => sizes[props.size || "medium"]}
+  ${(props) => variations[props.variation || "primary"]}
 `;
+
+Button.defaultProps = {
+  size: "medium",
+  variation: "primary",
+};
 
 export default Button;
