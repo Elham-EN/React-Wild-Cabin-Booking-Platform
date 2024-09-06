@@ -34,7 +34,7 @@ export default function CabinTable(): React.ReactElement {
     // This will identify the data, for query here, if later we use
     // query again on another page, with this exact key, then the data
     // would be read from the cache
-    queryKey: ["cabin"],
+    queryKey: ["cabins"],
     // Fetching the data from the API
     queryFn: getCabins,
   });
