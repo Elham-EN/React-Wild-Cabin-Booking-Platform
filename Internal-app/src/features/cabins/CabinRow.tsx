@@ -1,8 +1,9 @@
 import React from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import styled from "styled-components";
+import toast from "react-hot-toast";
 import { Cabin as CabinType } from "../../types/cabin";
 import { formatCurrency } from "../../utils/helpers";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteCabin } from "../../services/apiCabins";
 
 export const TableRow = styled.div`
@@ -60,12 +61,13 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
     // Tell react query what to do after, as soons as the mutation was a success
     // Need to refetch data, by invaliding the cache.
     onSuccess: () => {
+      toast.success("cabin successfully deleted");
       queryClient.invalidateQueries({
         // which exact query / data to be invalidated
         queryKey: ["cabins"],
       });
     },
-    onError: (err) => alert(err.message),
+    onError: (err) => toast.error(err.message),
   });
 
   const handleDeleteCabin = (id: string) => {
