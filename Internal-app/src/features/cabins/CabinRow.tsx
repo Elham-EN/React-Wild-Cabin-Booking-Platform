@@ -62,6 +62,8 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
     // Need to refetch data, by invaliding the cache.
     onSuccess: () => {
       toast.success("cabin successfully deleted");
+      // After performing a mutation, invalidating relevant queries allows the
+      // UI to reflect these changes immediately.
       queryClient.invalidateQueries({
         // which exact query / data to be invalidated
         queryKey: ["cabins"],

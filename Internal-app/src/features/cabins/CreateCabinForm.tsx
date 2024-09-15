@@ -1,10 +1,19 @@
 import styled from "styled-components";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  CreateCabinFormData,
+  createCabinFormSchema,
+} from "../../schemas/createCabinFormSchema";
 
 import Input from "../../ui/Input";
 import Form from "../../ui/Form";
-import Button from "../../ui/Button";
+import Button from "../../ui/Button/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
+import { createCabin } from "../../services/apiCabins";
+import toast from "react-hot-toast";
 
 const FormRow = styled.div`
   display: grid;
@@ -37,37 +46,62 @@ const Label = styled.label`
   font-weight: 500;
 `;
 
-const Error = styled.span`
+export const Error = styled.span`
   font-size: 1.4rem;
   color: var(--color-red-700);
 `;
 
-function CreateCabinForm() {
+export default function CreateCabinForm(): React.ReactElement {
+  const queryClient = useQueryClient();
+
+  const { register, handleSubmit, reset } = useForm<CreateCabinFormData>({
+    resolver: zodResolver(createCabinFormSchema),
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (newCabin: CreateCabinFormData) => createCabin(newCabin),
+    onSuccess: () => {
+      toast.success("New cabin successfully created");
+      queryClient.invalidateQueries({ queryKey: ["cabins"] });
+      reset();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const onSubmit = (data: CreateCabinFormData): void => {
+    mutate(data);
+  };
+
   return (
-    <Form>
+    <Form onSubmit={handleSubmit(onSubmit)}>
       <FormRow>
         <Label htmlFor="name">Cabin name</Label>
-        <Input type="text" id="name" />
+        <Input type="text" id="name" width="350px" {...register("name")} />
       </FormRow>
 
       <FormRow>
         <Label htmlFor="maxCapacity">Maximum capacity</Label>
-        <Input type="number" id="maxCapacity" />
+        <Input type="number" id="maxCapacity" {...register("maxCapacity")} />
       </FormRow>
 
       <FormRow>
         <Label htmlFor="regularPrice">Regular price</Label>
-        <Input type="number" id="regularPrice" />
+        <Input type="number" id="regularPrice" {...register("regularPrice")} />
       </FormRow>
 
       <FormRow>
         <Label htmlFor="discount">Discount</Label>
-        <Input type="number" id="discount" defaultValue={0} />
+        <Input type="number" id="discount" defaultValue={0} {...register("discount")} />
       </FormRow>
 
       <FormRow>
         <Label htmlFor="description">Description for website</Label>
-        <Textarea type="number" id="description" defaultValue="" />
+        <Textarea
+          id="description"
+          defaultValue=""
+          width="350px"
+          {...register("description")}
+        />
       </FormRow>
 
       <FormRow>
@@ -80,10 +114,10 @@ function CreateCabinForm() {
         <Button variation="secondary" type="reset">
           Cancel
         </Button>
-        <Button>Edit cabin</Button>
+        <Button type="submit" disabled={isPending}>
+          Edit cabin
+        </Button>
       </FormRow>
     </Form>
   );
 }
-
-export default CreateCabinForm;
