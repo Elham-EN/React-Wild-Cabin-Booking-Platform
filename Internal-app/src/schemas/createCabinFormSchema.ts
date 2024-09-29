@@ -29,7 +29,10 @@ const createCabinFormSchema = z.object({
     .refine((val) => val >= 0, "Discount cannot be negative")
     .refine((val) => val <= 100, "Discount cannot exceed 100%"),
   // Limits the description to 500 characters.
-  description: z.string().max(500, "Description must be 500 characters or less"),
+  description: z
+    .string()
+    .max(500, "Description must be 500 characters or less")
+    .min(100, "Description must have at least 100 characters to describe the cabin"),
   // Validates that the image is a file of an accepted type and size.
   //   image: z
   //     .instanceof(File)

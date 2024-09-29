@@ -54,7 +54,12 @@ export const Error = styled.span`
 export default function CreateCabinForm(): React.ReactElement {
   const queryClient = useQueryClient();
 
-  const { register, handleSubmit, reset } = useForm<CreateCabinFormData>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CreateCabinFormData>({
     resolver: zodResolver(createCabinFormSchema),
   });
 
@@ -78,21 +83,25 @@ export default function CreateCabinForm(): React.ReactElement {
         <Label htmlFor="name">Cabin name</Label>
         <Input type="text" id="name" width="350px" {...register("name")} />
       </FormRow>
+      {errors?.name?.message && <Error>{errors.name.message}</Error>}
 
       <FormRow>
         <Label htmlFor="maxCapacity">Maximum capacity</Label>
         <Input type="number" id="maxCapacity" {...register("maxCapacity")} />
       </FormRow>
+      {errors?.maxCapacity?.message && <Error>{errors.maxCapacity.message}</Error>}
 
       <FormRow>
         <Label htmlFor="regularPrice">Regular price</Label>
         <Input type="number" id="regularPrice" {...register("regularPrice")} />
       </FormRow>
+      {errors?.regularPrice?.message && <Error>{errors.regularPrice.message}</Error>}
 
       <FormRow>
         <Label htmlFor="discount">Discount</Label>
         <Input type="number" id="discount" defaultValue={0} {...register("discount")} />
       </FormRow>
+      {errors?.discount?.message && <Error>{errors.discount.message}</Error>}
 
       <FormRow>
         <Label htmlFor="description">Description for website</Label>
@@ -103,6 +112,7 @@ export default function CreateCabinForm(): React.ReactElement {
           {...register("description")}
         />
       </FormRow>
+      {errors?.description?.message && <Error>{errors.description.message}</Error>}
 
       <FormRow>
         <Label htmlFor="image">Cabin photo</Label>
