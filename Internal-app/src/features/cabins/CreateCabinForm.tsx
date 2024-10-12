@@ -1,3 +1,5 @@
+import React from "react";
+import toast from "react-hot-toast";
 import styled from "styled-components";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -6,14 +8,12 @@ import {
   CreateCabinFormData,
   createCabinFormSchema,
 } from "../../schemas/createCabinFormSchema";
-
 import Input from "../../ui/Input";
 import Form from "../../ui/Form";
 import Button from "../../ui/Button/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
 import { createCabin } from "../../services/apiCabins";
-import toast from "react-hot-toast";
 
 const FormRow = styled.div`
   display: grid;
@@ -74,7 +74,7 @@ export default function CreateCabinForm(): React.ReactElement {
   });
 
   const onSubmit = (data: CreateCabinFormData): void => {
-    mutate(data);
+    mutate({ ...data, image: data.image[0] });
   };
 
   return (
@@ -116,7 +116,7 @@ export default function CreateCabinForm(): React.ReactElement {
 
       <FormRow>
         <Label htmlFor="image">Cabin photo</Label>
-        <FileInput id="image" accept="image/*" />
+        <FileInput id="image" accept="image/*" {...register("image")} />
       </FormRow>
 
       <FormRow>

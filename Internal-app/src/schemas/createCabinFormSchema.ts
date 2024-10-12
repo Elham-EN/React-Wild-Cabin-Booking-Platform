@@ -34,13 +34,7 @@ const createCabinFormSchema = z.object({
     .max(500, "Description must be 500 characters or less")
     .min(100, "Description must have at least 100 characters to describe the cabin"),
   // Validates that the image is a file of an accepted type and size.
-  //   image: z
-  //     .instanceof(File)
-  //     .refine((file) => file.size <= 5000000, "File size must be less than 5MB")
-  //     .refine(
-  //       (file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type),
-  //       "File must be in JPEG, PNG, or WebP format"
-  //     ),
+  image: z.any().optional(),
 });
 
 type CreateCabinFormData = z.infer<typeof createCabinFormSchema>;
