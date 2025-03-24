@@ -5,6 +5,9 @@ import toast from "react-hot-toast";
 import { Cabin as CabinType } from "../../types/cabin";
 import { formatCurrency } from "../../utils/helpers";
 import { deleteCabin } from "../../services/apiCabins";
+import CreateCabinForm from "./CreateCabinForm";
+import Button from "../../ui/Button/Button";
+import Row from "../../ui/Layouts/Row";
 
 export const TableRow = styled.div`
   display: grid;
@@ -51,11 +54,15 @@ interface Props {
 }
 
 export default function CabinRow({ cabin }: Props): React.ReactElement {
+  // Toggle state variable: Display edit form
+  const [showForm, setShowForm] = React.useState<boolean>(false);
+
   const { id: cabinId, name, maxCapacity, regularPrice, discount, image } = cabin;
 
   // Access Query Client
   const queryClient = useQueryClient();
 
+  // Delete cabin data on the server
   const { isPending: isDeleting, mutate } = useMutation({
     mutationFn: (id: string) => deleteCabin(id),
     // Tell react query what to do after, as soons as the mutation was a success
@@ -72,20 +79,33 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
     onError: (err) => toast.error(err.message),
   });
 
-  const handleDeleteCabin = (id: string) => {
+  const handleDeleteCabin = (id: string): void => {
     mutate(id);
   };
 
+  const handleFormToggle = (): void => {
+    setShowForm((show) => !show);
+  };
+
   return (
-    <TableRow role="row">
-      <Img src={image} />
-      <Cabin>{name}</Cabin>
-      <div>Fits up to {maxCapacity} guests</div>
-      <Price>{formatCurrency(regularPrice)}</Price>
-      <Discount>{formatCurrency(discount)}</Discount>
-      <button onClick={() => handleDeleteCabin(cabinId)} disabled={isDeleting}>
-        Delete
-      </button>
-    </TableRow>
+    <>
+      <TableRow role="row">
+        <Img src={image} />
+        <Cabin>{name}</Cabin>
+        <div>Fits up to {maxCapacity} guests</div>
+        <Price>{formatCurrency(regularPrice)}</Price>
+        <Discount>{formatCurrency(discount)}</Discount>
+        <Row type="horizontal">
+          <Button onClick={handleFormToggle} disabled={isDeleting}>
+            Edit
+          </Button>
+          <Button onClick={() => handleDeleteCabin(cabinId)} disabled={isDeleting}>
+            Delete
+          </Button>
+        </Row>
+      </TableRow>
+      {/* If showForm is true display the form */}
+      {showForm && <CreateCabinForm cabin={cabin} />}
+    </>
   );
 }

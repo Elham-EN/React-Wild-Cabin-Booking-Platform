@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const StyledUserAvatar = styled.div`
+export const StyledUserAvatar = styled.div`
   display: flex;
   gap: 1.2rem;
   align-items: center;
@@ -9,7 +9,7 @@ const StyledUserAvatar = styled.div`
   color: var(--color-grey-600);
 `;
 
-const Avatar = styled.img`
+export const Avatar = styled.img`
   display: block;
   width: 4rem;
   width: 3.6rem;

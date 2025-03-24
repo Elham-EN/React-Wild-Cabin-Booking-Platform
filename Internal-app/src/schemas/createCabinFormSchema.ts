@@ -8,23 +8,30 @@ const createCabinFormSchema = z.object({
     .max(50, "Cabin name must be 50 characters or less"),
   // Ensures maxCapacity is a positive integer with a reasonable upper limit.
   maxCapacity: z
-    .string()
-    .min(1, "Maximum capacity is required")
-    .transform((val) => parseInt(val, 10))
+    .union([z.string(), z.number()])
+    .transform((val) => {
+      if (typeof val === "string") return parseInt(val, 10);
+      return val;
+    })
     .refine((val) => !isNaN(val), "Must be a valid number")
     .refine((val) => val > 0, "Maximum capacity must be greater than 0")
     .refine((val) => val <= 100, "Maximum capacity cannot exceed 100"),
   // Checks that regularPrice is a positive number.
   regularPrice: z
-    .string()
-    .min(1, "Regular price is required")
-    .transform((val) => parseFloat(val))
+    .union([z.string(), z.number()])
+    .transform((val) => {
+      if (typeof val === "string") return parseFloat(val);
+      return val;
+    })
     .refine((val) => !isNaN(val), "Must be a valid number")
     .refine((val) => val > 0, "Regular price must be greater than 0"),
   // Allows discount to be a number between 0 and 100.
   discount: z
-    .string()
-    .transform((val) => parseFloat(val))
+    .union([z.string(), z.number()])
+    .transform((val) => {
+      if (typeof val === "string") return parseFloat(val);
+      return val;
+    })
     .refine((val) => !isNaN(val), "Must be a valid number")
     .refine((val) => val >= 0, "Discount cannot be negative")
     .refine((val) => val <= 100, "Discount cannot exceed 100%"),

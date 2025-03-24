@@ -13,7 +13,9 @@ import Form from "../../ui/Form";
 import Button from "../../ui/Button/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
-import { createCabin } from "../../services/apiCabins";
+import { createCabin, editCabin } from "../../services/apiCabins";
+import { Cabin as CabinType } from "../../types/cabin";
+import { z } from "zod";
 
 const FormRow = styled.div`
   display: grid;
@@ -50,9 +52,23 @@ export const Error = styled.span`
   font-size: 1.4rem;
   color: var(--color-red-700);
 `;
+interface Props {
+  cabin?: CabinType;
+}
 
-export default function CreateCabinForm(): React.ReactElement {
+function CreateCabinForm({ cabin }: Props): React.ReactElement {
+  const isEditSession = Boolean(cabin?.id);
+  const editValues = cabin ?? {};
+
   const queryClient = useQueryClient();
+
+  // where the user doesn't change the image when editing. Update your
+  // form schema to make the image field optional during editing:
+  const createCabinFormSchemaWithOptionalImage = isEditSession
+    ? createCabinFormSchema.extend({
+        image: z.any().optional(),
+      })
+    : createCabinFormSchema;
 
   const {
     register,
@@ -60,21 +76,42 @@ export default function CreateCabinForm(): React.ReactElement {
     reset,
     formState: { errors },
   } = useForm<CreateCabinFormData>({
-    resolver: zodResolver(createCabinFormSchema),
+    defaultValues: isEditSession ? editValues : {},
+    resolver: zodResolver(createCabinFormSchemaWithOptionalImage),
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (newCabin: CreateCabinFormData) => createCabin(newCabin),
-    onSuccess: () => {
-      toast.success("New cabin successfully created");
+    mutationFn: (data: CreateCabinFormData) => {
+      if (isEditSession && cabin?.id) {
+        return editCabin(cabin.id, data);
+      } else {
+        return createCabin(data);
+      }
+    },
+    onSuccess: (updatedData) => {
+      toast.success(
+        isEditSession ? "Cabin successfully updated" : "New cabin successfully created"
+      );
+
+      // Invalidate the query to refresh the cabins list
       queryClient.invalidateQueries({ queryKey: ["cabins"] });
-      reset();
+
+      if (isEditSession) {
+        // If it's an edit, reset the form with the updated values
+        reset(updatedData);
+      } else {
+        // If it's a new cabin, just clear the form
+        reset();
+      }
     },
     onError: (err) => toast.error(err.message),
   });
 
   const onSubmit = (data: CreateCabinFormData): void => {
-    mutate({ ...data, image: data.image[0] });
+    // For a new cabin, pass the image file directly
+    // For editing, only pass the new image file if it's been changed
+    const imageValue = data.image instanceof FileList ? data.image[0] : data.image;
+    mutate({ ...data, image: imageValue });
   };
 
   return (
@@ -125,9 +162,11 @@ export default function CreateCabinForm(): React.ReactElement {
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          Edit cabin
+          {isEditSession ? "Edit cabin" : "Create new cabin"}
         </Button>
       </FormRow>
     </Form>
   );
 }
+
+export default CreateCabinForm;
