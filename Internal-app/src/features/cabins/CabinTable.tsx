@@ -1,9 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import styled from "styled-components";
-import { getCabins } from "../../services/apiCabins";
 import Spinner from "../../ui/Spinner";
 import CabinRow from "./CabinRow";
+import { useGetCabins } from "./useGetCabins";
 
 const Table = styled.div`
   border: 1px solid var(--color-grey-200);
@@ -30,14 +29,7 @@ const TableHeader = styled.header`
 `;
 
 export default function CabinTable(): React.ReactElement {
-  const { data: cabins, isPending } = useQuery({
-    // This will identify the data, for query here, if later we use
-    // query again on another page, with this exact key, then the data
-    // would be read from the cache
-    queryKey: ["cabins"],
-    // Fetching the data from the API
-    queryFn: getCabins,
-  });
+  const { isPending, cabins } = useGetCabins();
 
   if (isPending) return <Spinner />;
 

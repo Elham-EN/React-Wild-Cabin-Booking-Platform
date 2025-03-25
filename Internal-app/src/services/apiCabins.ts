@@ -2,6 +2,7 @@ import { CreateCabinFormData } from "../schemas/createCabinFormSchema";
 import { Cabin } from "../types/cabin";
 import { supabase, supabaseUrl } from "./supabase";
 
+// update an existing cabin record in the Supabase
 export async function editCabin(
   id: string,
   updatedCabin: CreateCabinFormData
@@ -9,15 +10,23 @@ export async function editCabin(
   // Check if there's a new image to upload
   let imagePath;
 
+  /**
+   * This section checks if a new image has been provided for the cabin.
+   * It only processes the image if:
+   *  updatedCabin.image exists (not null or undefined)
+   *  It's an instance of the File object (meaning it's a new file upload)
+   */
   if (updatedCabin.image && updatedCabin.image instanceof File) {
-    // Upload the new image
+    // Upload the new image:
+    // Generates a random filename to prevent collisions
     const imageName = `${Math.random()}-${updatedCabin.image.name}`.replace("/", "");
+    // Constructs the full image path for storage
     imagePath = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
-    // Upload new image to storage
+    // Upload new image to the Supabase storage bucket
     const { error: storageError } = await supabase.storage
       .from("cabin-images")
       .upload(imageName, updatedCabin.image);
-
+    // Handles any potential errors during upload
     if (storageError) {
       console.error(storageError);
       throw new Error("Cabin image could not be uploaded");
@@ -25,26 +34,40 @@ export async function editCabin(
   }
   // Prepare the data to update
   const cabinData = {
+    // It spreads all the updated cabin properties into a new object
     ...updatedCabin,
-    // Only update the image if a new one was uploaded
+    // It conditionally adds the new image path only if a new image was uploaded
     ...(imagePath && { image: imagePath }),
   };
 
-  // If updatedCabin.image is a File object, we've handled it above
-  // If it's a string (existing image URL), we want to keep it
-  // If it's empty or null, we don't want to include it in the update
+  /**
+    This block of code is what handles the distinction between File objects 
+    and string URLs. Here's how it works:
+
+    1. First, it checks if cabinData.image is a File object using instanceof File
+    2. If it is a File object, it deletes that property from the cabinData object
+
+    The reason for this is:
+    - If the image is a File object, it means the user has selected a new image
+    - We've already processed this File object earlier in the function by:
+      - Uploading it to storage
+      - Setting the imagePath variable to the URL
+      - Including that URL in the cabinData using 
+        ...(imagePath && { image: imagePath })
+   */
   if (cabinData.image instanceof File) {
     delete cabinData.image;
   }
 
-  // Update the cabin in the database
+  // Updates the cabin record in the database for the specified ID
   const { data, error } = await supabase
     .from("cabins")
     .update(cabinData)
     .eq("id", id)
     .select()
-    .single();
+    .single(); // return the updated single record
 
+  // Handles any database errors that might occur
   if (error) {
     console.error(error);
     throw new Error("Cabin could not be updated");

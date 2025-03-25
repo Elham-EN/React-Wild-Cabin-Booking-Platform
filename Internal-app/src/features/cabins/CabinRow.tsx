@@ -1,13 +1,11 @@
 import React from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import styled from "styled-components";
-import toast from "react-hot-toast";
 import { Cabin as CabinType } from "../../types/cabin";
 import { formatCurrency } from "../../utils/helpers";
-import { deleteCabin } from "../../services/apiCabins";
 import CreateCabinForm from "./CreateCabinForm";
 import Button from "../../ui/Button/Button";
 import Row from "../../ui/Layouts/Row";
+import { useDeleteCabin } from "./useDeleteCabin";
 
 export const TableRow = styled.div`
   display: grid;
@@ -57,30 +55,12 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
   // Toggle state variable: Display edit form
   const [showForm, setShowForm] = React.useState<boolean>(false);
 
+  const { isDeleting, deleteCabinMutate } = useDeleteCabin();
+
   const { id: cabinId, name, maxCapacity, regularPrice, discount, image } = cabin;
 
-  // Access Query Client
-  const queryClient = useQueryClient();
-
-  // Delete cabin data on the server
-  const { isPending: isDeleting, mutate } = useMutation({
-    mutationFn: (id: string) => deleteCabin(id),
-    // Tell react query what to do after, as soons as the mutation was a success
-    // Need to refetch data, by invaliding the cache.
-    onSuccess: () => {
-      toast.success("cabin successfully deleted");
-      // After performing a mutation, invalidating relevant queries allows the
-      // UI to reflect these changes immediately.
-      queryClient.invalidateQueries({
-        // which exact query / data to be invalidated
-        queryKey: ["cabins"],
-      });
-    },
-    onError: (err) => toast.error(err.message),
-  });
-
   const handleDeleteCabin = (id: string): void => {
-    mutate(id);
+    deleteCabinMutate(id);
   };
 
   const handleFormToggle = (): void => {
@@ -94,7 +74,7 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
         <Cabin>{name}</Cabin>
         <div>Fits up to {maxCapacity} guests</div>
         <Price>{formatCurrency(regularPrice)}</Price>
-        <Discount>{formatCurrency(discount)}</Discount>
+        {discount ? <Discount>{formatCurrency(discount)}</Discount> : <span>-</span>}
         <Row type="horizontal">
           <Button onClick={handleFormToggle} disabled={isDeleting}>
             Edit
