@@ -6,6 +6,9 @@ import CreateCabinForm from "./CreateCabinForm";
 import Button from "../../ui/Button/Button";
 import Row from "../../ui/Layouts/Row";
 import { useDeleteCabin } from "./useDeleteCabin";
+import { HiPencil, HiSquare2Stack, HiTrash } from "react-icons/hi2";
+import { useDuplicateCabin } from "./useDuplicateCabin";
+import Spinner from "../../ui/Spinner";
 
 export const TableRow = styled.div`
   display: grid;
@@ -52,12 +55,36 @@ interface Props {
 }
 
 export default function CabinRow({ cabin }: Props): React.ReactElement {
+  const {
+    id: cabinId,
+    name,
+    maxCapacity,
+    regularPrice,
+    description,
+    discount,
+    image,
+  } = cabin;
+
   // Toggle state variable: Display edit form
   const [showForm, setShowForm] = React.useState<boolean>(false);
 
   const { isDeleting, deleteCabinMutate } = useDeleteCabin();
 
-  const { id: cabinId, name, maxCapacity, regularPrice, discount, image } = cabin;
+  const { isPending, mutateDuplicateCabin } = useDuplicateCabin(
+    {
+      name: `Copy of ${name}`,
+      maxCapacity,
+      regularPrice,
+      discount,
+      description,
+      image,
+    },
+    cabinId
+  );
+
+  const handleDuplicate = () => {
+    mutateDuplicateCabin();
+  };
 
   const handleDeleteCabin = (id: string): void => {
     deleteCabinMutate(id);
@@ -66,6 +93,8 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
   const handleFormToggle = (): void => {
     setShowForm((show) => !show);
   };
+
+  if (isPending) return <Spinner />;
 
   return (
     <>
@@ -76,11 +105,12 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
         <Price>{formatCurrency(regularPrice)}</Price>
         {discount ? <Discount>{formatCurrency(discount)}</Discount> : <span>-</span>}
         <Row type="horizontal">
+          <Button onClick={handleDuplicate}>{<HiSquare2Stack />}</Button>
           <Button onClick={handleFormToggle} disabled={isDeleting}>
-            Edit
+            <HiPencil />
           </Button>
           <Button onClick={() => handleDeleteCabin(cabinId)} disabled={isDeleting}>
-            Delete
+            <HiTrash />
           </Button>
         </Row>
       </TableRow>

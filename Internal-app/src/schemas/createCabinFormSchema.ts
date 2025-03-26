@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
 const createCabinFormSchema = z.object({
   // Validates the cabin name as a required string with a maximum length
   name: z
@@ -41,7 +44,22 @@ const createCabinFormSchema = z.object({
     .max(500, "Description must be 500 characters or less")
     .min(100, "Description must have at least 100 characters to describe the cabin"),
   // Validates that the image is a file of an accepted type and size.
-  image: z.any().optional(),
+  image: z
+    .any()
+    .refine((files) => {
+      if (!files || files.length === 0) return true; // optional during edit
+      return files instanceof FileList ? files.length > 0 : true;
+    }, "Image is required")
+    .refine((files) => {
+      if (!files || files.length === 0) return true;
+      const file = files instanceof FileList ? files[0] : files;
+      return file instanceof File ? file.size <= MAX_FILE_SIZE : true;
+    }, `File size should be less than 5MB`)
+    .refine((files) => {
+      if (!files || files.length === 0) return true;
+      const file = files instanceof FileList ? files[0] : files;
+      return file instanceof File ? ACCEPTED_IMAGE_TYPES.includes(file.type) : true;
+    }, "Only .jpg, .jpeg, .png and .webp formats are supported"),
 });
 
 type CreateCabinFormData = z.infer<typeof createCabinFormSchema>;

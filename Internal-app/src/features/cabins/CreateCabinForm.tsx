@@ -135,6 +135,7 @@ function CreateCabinForm({ cabin }: Props): React.ReactElement {
         <Label htmlFor="image">Cabin photo</Label>
         <FileInput id="image" accept="image/*" {...register("image")} />
       </FormRow>
+      {errors?.image?.message && <Error>{String(errors.image.message)}</Error>}
 
       <FormRow>
         {/* type is an HTML attribute! */}

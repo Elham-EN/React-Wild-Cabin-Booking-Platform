@@ -4,12 +4,12 @@ import { createCabin, editCabin } from "../../services/apiCabins";
 import toast from "react-hot-toast";
 import { UseFormReset } from "react-hook-form";
 
-type ResetType = UseFormReset<CreateCabinFormData>;
+type ResetType = UseFormReset<CreateCabinFormData> | null;
 
 export function useMutateCabin(
-  isEditSession: boolean,
+  isEditSession: boolean | null,
   cabinId: string | undefined,
-  reset: ResetType
+  reset: ResetType | null
 ) {
   const queryClient = useQueryClient();
   const { mutate: mutateCabin, isPending } = useMutation({
@@ -28,10 +28,10 @@ export function useMutateCabin(
       // Invalidate the query to refresh the cabins list
       queryClient.invalidateQueries({ queryKey: ["cabins"] });
 
-      if (isEditSession) {
+      if (isEditSession && reset) {
         // If it's an edit, reset the form with the updated values
         reset(updatedData);
-      } else {
+      } else if (reset) {
         // If it's a new cabin, just clear the form
         reset();
       }

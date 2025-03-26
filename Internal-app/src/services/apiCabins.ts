@@ -17,6 +17,19 @@ export async function editCabin(
    *  It's an instance of the File object (meaning it's a new file upload)
    */
   if (updatedCabin.image && updatedCabin.image instanceof File) {
+    const file = updatedCabin.image;
+
+    // Size validation
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error("Image file is too large (max 5MB)");
+    }
+
+    // Type validation
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      throw new Error("Invalid file type. Only JPG, PNG and WebP are supported");
+    }
+
     // Upload the new image:
     // Generates a random filename to prevent collisions
     const imageName = `${Math.random()}-${updatedCabin.image.name}`.replace("/", "");
@@ -73,6 +86,22 @@ export async function editCabin(
     throw new Error("Cabin could not be updated");
   }
   return data as Cabin;
+}
+
+export async function duplicateCabin(cabinId: string, cabin: CreateCabinFormData) {
+  // Check if the cabin data exist first
+  if (!cabinId) return;
+  // Dont need to upload new image. Duplicate Cabin data to the DB
+  const { data, error } = await supabase.from("cabins").insert(cabin).select().single();
+
+  if (error) {
+    console.error(error);
+    throw new Error("Cabin could not be created");
+  }
+
+  const cabinData = data as Cabin;
+
+  return cabinData;
 }
 
 export async function createCabin(newCabin: CreateCabinFormData): Promise<Cabin> {
