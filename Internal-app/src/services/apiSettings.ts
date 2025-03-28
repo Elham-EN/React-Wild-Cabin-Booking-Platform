@@ -1,17 +1,21 @@
-import supabase from "./supabase";
+import { CabinSetting, EditCabinSetting } from "../types/Setting";
+import { supabase } from "./supabase";
 
-export async function getSettings() {
+export async function getSettings(): Promise<CabinSetting | undefined> {
   const { data, error } = await supabase.from("settings").select("*").single();
 
   if (error) {
     console.error(error);
     throw new Error("Settings could not be loaded");
   }
-  return data;
+
+  const settingsData = data as CabinSetting;
+
+  return settingsData;
 }
 
 // We expect a newSetting object that looks like {setting: newValue}
-export async function updateSetting(newSetting) {
+export async function updateSetting(newSetting: EditCabinSetting) {
   const { data, error } = await supabase
     .from("settings")
     .update(newSetting)
