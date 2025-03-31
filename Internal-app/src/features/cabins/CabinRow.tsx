@@ -9,6 +9,8 @@ import { useDeleteCabin } from "./useDeleteCabin";
 import { HiPencil, HiSquare2Stack, HiTrash } from "react-icons/hi2";
 import { useDuplicateCabin } from "./useDuplicateCabin";
 import Spinner from "../../ui/Spinner";
+import Modal from "../../ui/Modal";
+import ConfirmDelete from "../../ui/ConfirmDelete";
 
 export const TableRow = styled.div`
   display: grid;
@@ -65,9 +67,6 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
     image,
   } = cabin;
 
-  // Toggle state variable: Display edit form
-  const [showForm, setShowForm] = React.useState<boolean>(false);
-
   const { isDeleting, deleteCabinMutate } = useDeleteCabin();
 
   const { isPending, mutateDuplicateCabin } = useDuplicateCabin(
@@ -90,32 +89,41 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
     deleteCabinMutate(id);
   };
 
-  const handleFormToggle = (): void => {
-    setShowForm((show) => !show);
-  };
-
   if (isPending) return <Spinner />;
 
   return (
-    <>
-      <TableRow role="row">
-        <Img src={image} />
-        <Cabin>{name}</Cabin>
-        <div>Fits up to {maxCapacity} guests</div>
-        <Price>{formatCurrency(regularPrice)}</Price>
-        {discount ? <Discount>{formatCurrency(discount)}</Discount> : <span>-</span>}
-        <Row type="horizontal">
-          <Button onClick={handleDuplicate}>{<HiSquare2Stack />}</Button>
-          <Button onClick={handleFormToggle} disabled={isDeleting}>
-            <HiPencil />
-          </Button>
-          <Button onClick={() => handleDeleteCabin(cabinId)} disabled={isDeleting}>
-            <HiTrash />
-          </Button>
-        </Row>
-      </TableRow>
-      {/* If showForm is true display the form */}
-      {showForm && <CreateCabinForm cabin={cabin} />}
-    </>
+    <TableRow role="row">
+      <Img src={image} />
+      <Cabin>{name}</Cabin>
+      <div>Fits up to {maxCapacity} guests</div>
+      <Price>{formatCurrency(regularPrice)}</Price>
+      {discount ? <Discount>{formatCurrency(discount)}</Discount> : <span>-</span>}
+      <Row type="horizontal">
+        <Button onClick={handleDuplicate}>{<HiSquare2Stack />}</Button>
+
+        <Modal>
+          <Modal.Open opens="edit">
+            <Button>
+              <HiPencil />
+            </Button>
+          </Modal.Open>
+          <Modal.Window name="edit">
+            <CreateCabinForm cabin={cabin} />
+          </Modal.Window>
+          <Modal.Open opens="delete">
+            <Button>
+              <HiTrash />
+            </Button>
+          </Modal.Open>
+          <Modal.Window name="delete">
+            <ConfirmDelete
+              resourceName={"cabins"}
+              disabled={isDeleting}
+              onConfirm={() => handleDeleteCabin(cabinId)}
+            />
+          </Modal.Window>
+        </Modal>
+      </Row>
+    </TableRow>
   );
 }
