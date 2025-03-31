@@ -6,7 +6,7 @@ type FormProps = {
 
 const Form = styled.form<FormProps>`
   ${(props) =>
-    props.type !== "modal" &&
+    props.type === "regular" &&
     css`
       padding: 2.4rem 4rem;
 
@@ -29,16 +29,19 @@ const Form = styled.form<FormProps>`
     props.type === "modal" &&
     css`
       width: 80rem;
-
       /** 3D Effect for modal **/
-      box-shadow:
+      /* box-shadow:
         0 4px 8px rgba(0, 0, 0, 0.1),
         0 8px 16px rgba(0, 0, 0, 0.1),
-        0 16px 32px rgba(0, 0, 0, 0.1);
+        0 16px 32px rgba(0, 0, 0, 0.1); */
     `}
     
   overflow: hidden;
   font-size: 1.4rem;
 `;
+
+Form.defaultProps = {
+  type: "regular",
+};
 
 export default Form;

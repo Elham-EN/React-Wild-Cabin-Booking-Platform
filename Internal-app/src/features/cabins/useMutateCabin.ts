@@ -9,7 +9,8 @@ type ResetType = UseFormReset<CreateCabinFormData> | null;
 export function useMutateCabin(
   isEditSession: boolean | null,
   cabinId: string | undefined,
-  reset: ResetType | null
+  reset: ResetType | null,
+  onCloseModal?: () => void
 ) {
   const queryClient = useQueryClient();
   const { mutate: mutateCabin, isPending } = useMutation({
@@ -35,6 +36,7 @@ export function useMutateCabin(
         // If it's a new cabin, just clear the form
         reset();
       }
+      onCloseModal?.();
     },
     onError: (err) => toast.error(err.message),
   });

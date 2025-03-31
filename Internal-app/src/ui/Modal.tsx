@@ -1,3 +1,6 @@
+import React from "react";
+import { createPortal } from "react-dom";
+import { HiXMark } from "react-icons/hi2";
 import styled from "styled-components";
 
 const StyledModal = styled.div`
@@ -48,3 +51,28 @@ const Button = styled.button`
     color: var(--color-grey-500);
   }
 `;
+
+interface ModalProps {
+  children: React.ReactNode;
+  onCloseModal: () => void;
+}
+
+// A React Portal allow us to render an element outside of the parent
+// component's DOM Structure, while keeping the element in the original
+// position of the component tree.
+
+function Modal({ children, onCloseModal }: ModalProps): React.ReactElement {
+  return createPortal(
+    <Overlay>
+      <StyledModal>
+        <Button onClick={onCloseModal}>
+          <HiXMark />
+        </Button>
+        <div>{children}</div>
+      </StyledModal>
+    </Overlay>,
+    document.body
+  );
+}
+
+export default Modal;
