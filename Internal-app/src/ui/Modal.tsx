@@ -4,13 +4,12 @@ import React, {
   HTMLAttributes,
   ReactElement,
   useContext,
-  useEffect,
-  useRef,
   useState,
 } from "react";
 import { createPortal } from "react-dom";
 import { HiXMark } from "react-icons/hi2";
 import styled from "styled-components";
+import { useOutsideClick } from "../hooks/useOutsideClick";
 
 const StyledModal = styled.div.attrs({ role: "modal", "aria-modal": true })`
   position: fixed;
@@ -126,33 +125,8 @@ interface WindowProps {
 
 function Window({ children, name }: WindowProps): ReactElement | null {
   const { openName, close } = useModalContext();
-  // Tells TypeScript what kind of element this ref will point to
-  // The initial value is null because the ref won't be assigned
-  // until the component renders. Point to the modal.
-  const ref = useRef<HTMLDivElement>(null);
 
-  // Detecting a click outide the Modal, than close the modal
-  const handleClick = (event: MouseEvent) => {
-    console.log("Event Target: ", event.target);
-    // Check if ref exist And if ref.current (window) does not contain
-    // the element that was clicked, then close the modal
-    if (ref.current && !ref.current.contains(event.target as Node)) {
-      // If click outside of the modal (Window) than close the modal
-      close();
-    }
-  };
-
-  useEffect(() => {
-    // Add Global event listener for click event at capturing phase
-    document.addEventListener("click", handleClick, { capture: true });
-    // Return a cleanup function that will run when the
-    // component unmounts to prevent memory leaks
-    return () => {
-      console.log("Effect Cleanup - removing listener");
-      document.removeEventListener("click", handleClick, { capture: true });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [close]);
+  const ref = useOutsideClick(close);
 
   if (name !== openName) return null;
 
