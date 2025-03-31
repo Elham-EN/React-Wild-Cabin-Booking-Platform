@@ -1,4 +1,11 @@
-import React from "react";
+import React, {
+  cloneElement,
+  createContext,
+  HTMLAttributes,
+  ReactElement,
+  useContext,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import { HiXMark } from "react-icons/hi2";
 import styled from "styled-components";
@@ -52,27 +59,88 @@ const Button = styled.button`
   }
 `;
 
-interface ModalProps {
-  children: React.ReactNode;
-  onCloseModal: () => void;
+interface ModalContextType {
+  openName: string;
+  close: () => void;
+  open: (name: string) => void;
 }
 
-// A React Portal allow us to render an element outside of the parent
-// component's DOM Structure, while keeping the element in the original
-// position of the component tree.
+const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
-function Modal({ children, onCloseModal }: ModalProps): React.ReactElement {
+function useModalContext() {
+  const context = useContext(ModalContext);
+
+  if (context === undefined) {
+    throw new Error("useModal must be used within a ModalProvider");
+  }
+
+  return context;
+}
+
+// Parent Component:
+interface ModalProps {
+  children: React.ReactNode;
+}
+function Modal({ children }: ModalProps): ReactElement {
+  // Keep track of which is the currently open window: By default no open window
+  const [openName, setOpenName] = useState<string>("");
+
+  const close = () => setOpenName("");
+  const open = (name: string) => setOpenName(name);
+
+  return (
+    <ModalContext.Provider value={{ openName, close, open }}>
+      {children}
+    </ModalContext.Provider>
+  );
+}
+
+interface OpenProps {
+  // explicitly telling TypeScript that children must be a React
+  // element that can accept HTML attributes like onClick
+  children: React.ReactElement<HTMLAttributes<HTMLElement>>;
+  opens: string;
+}
+
+function Open({ children, opens: OpensWindowName }: OpenProps): ReactElement | null {
+  const { open } = useModalContext();
+
+  // Check if children is a valid ReactElement
+  if (!React.isValidElement(children)) return null;
+
+  return cloneElement(children, {
+    onClick: () => open(OpensWindowName),
+  });
+}
+
+interface ModalChildProps {
+  onCloseModal?: () => void;
+}
+
+interface WindowProps {
+  children: React.ReactElement<ModalChildProps>;
+  name: string;
+}
+
+function Window({ children, name }: WindowProps): ReactElement | null {
+  const { openName, close } = useModalContext();
+
+  if (name !== openName) return null;
+
   return createPortal(
     <Overlay>
       <StyledModal>
-        <Button onClick={onCloseModal}>
+        <Button onClick={close}>
           <HiXMark />
         </Button>
-        <div>{children}</div>
+        <div>{cloneElement(children, { onCloseModal: close })}</div>
       </StyledModal>
     </Overlay>,
     document.body
   );
 }
+
+Modal.Open = Open;
+Modal.Window = Window;
 
 export default Modal;
