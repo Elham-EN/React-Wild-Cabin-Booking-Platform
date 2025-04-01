@@ -114,12 +114,14 @@ function Row({ children }: RowProps): React.ReactElement {
     </StyledRow>
   );
 }
-interface BodyProps {
-  children: React.ReactNode;
+interface BodyProps<T> {
+  data: T[] | undefined;
+  render: (item: T, index: number) => React.ReactElement;
 }
 
-function Body({ children }: BodyProps): React.ReactElement {
-  return <>{children}</>;
+function Body<T>({ data, render }: BodyProps<T>): React.ReactElement {
+  if (!data || !data.length) return <Empty>No data to show at the moment</Empty>;
+  return <StyledBody>{data?.map(render)}</StyledBody>;
 }
 Table.Header = Header;
 Table.Body = Body;
