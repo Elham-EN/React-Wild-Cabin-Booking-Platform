@@ -1,6 +1,7 @@
+import React from "react";
 import styled from "styled-components";
 
-const StyledMenu = styled.div`
+const Menu = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -60,3 +61,36 @@ const StyledButton = styled.button`
     transition: all 0.3s;
   }
 `;
+
+interface MenusProps {
+  children: React.ReactNode;
+}
+
+function Menus({ children }: MenusProps): React.ReactElement {
+  return <div>{children}</div>;
+}
+
+interface ToggleProps {
+  id: string;
+}
+
+function Toggle({ id }: ToggleProps): React.ReactElement {}
+
+interface ListProps {
+  id: string;
+}
+
+function List({ id }: ListProps): React.ReactElement {}
+
+interface ButtonProps {
+  children: React.ReactNode;
+}
+
+function Button({ children }: ButtonProps): React.ReactElement {}
+
+Menus.Menu = Menu;
+Menus.Toggle = Toggle;
+Menus.List = List;
+Menus.Button = Button;
+
+export default Menus;

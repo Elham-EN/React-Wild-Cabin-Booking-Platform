@@ -12,6 +12,7 @@ import Spinner from "../../ui/Spinner";
 import Modal from "../../ui/Modal";
 import ConfirmDelete from "../../ui/ConfirmDelete";
 import Table from "../../ui/Table";
+import Menus from "../../ui/Menus";
 
 export const Img = styled.img`
   display: block;
@@ -111,6 +112,14 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
             />
           </Modal.Window>
         </Modal>
+        <Menus.Menu>
+          <Menus.Toggle id={cabinId} />
+          <Menu.List id={cabinId}>
+            <Menu.Button>Duplicate</Menu.Button>
+            <Menu.Button>edit</Menu.Button>
+            <Menu.Button>Delete</Menu.Button>
+          </Menu.List>
+        </Menus.Menu>
       </Row>
     </Table.Row>
   );
