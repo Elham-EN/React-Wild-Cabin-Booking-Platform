@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Cabin as CabinType } from "../../types/cabin";
 import { formatCurrency } from "../../utils/helpers";
 import CreateCabinForm from "./CreateCabinForm";
-import Button from "../../ui/Button/Button";
 import Row from "../../ui/Layouts/Row";
 import { useDeleteCabin } from "./useDeleteCabin";
 import { HiPencil, HiSquare2Stack, HiTrash } from "react-icons/hi2";
@@ -89,21 +88,27 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
       <Price>{formatCurrency(regularPrice)}</Price>
       {discount ? <Discount>{formatCurrency(discount)}</Discount> : <span>-</span>}
       <Row type="horizontal">
-        <Button onClick={handleDuplicate}>{<HiSquare2Stack />}</Button>
         <Modal>
-          <Modal.Open opens="edit">
-            <Button>
-              <HiPencil />
-            </Button>
-          </Modal.Open>
+          <Menus.Menu>
+            <Menus.Toggle id={cabinId} />
+
+            <Menus.List id={cabinId}>
+              <Menus.Button onClick={handleDuplicate} icon={<HiSquare2Stack />}>
+                Duplicate
+              </Menus.Button>
+              <Modal.Open opens="edit">
+                <Menus.Button icon={<HiPencil />}>edit</Menus.Button>
+              </Modal.Open>
+              <Modal.Open opens="delete">
+                <Menus.Button icon={<HiTrash />}>Delete</Menus.Button>
+              </Modal.Open>
+            </Menus.List>
+          </Menus.Menu>
+
           <Modal.Window name="edit">
             <CreateCabinForm cabin={cabin} />
           </Modal.Window>
-          <Modal.Open opens="delete">
-            <Button>
-              <HiTrash />
-            </Button>
-          </Modal.Open>
+
           <Modal.Window name="delete">
             <ConfirmDelete
               resourceName={"cabins"}
@@ -112,14 +117,6 @@ export default function CabinRow({ cabin }: Props): React.ReactElement {
             />
           </Modal.Window>
         </Modal>
-        <Menus.Menu>
-          <Menus.Toggle id={cabinId} />
-          <Menu.List id={cabinId}>
-            <Menu.Button>Duplicate</Menu.Button>
-            <Menu.Button>edit</Menu.Button>
-            <Menu.Button>Delete</Menu.Button>
-          </Menu.List>
-        </Menus.Menu>
       </Row>
     </Table.Row>
   );

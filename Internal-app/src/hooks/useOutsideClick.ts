@@ -1,10 +1,15 @@
 import { useEffect, useRef } from "react";
 
-function useOutsideClick(handler: () => void, listenCapturing: boolean = true) {
+// Make it generic Work with any HTML element while still defaulting to
+// HTMLDivElement if no type is specified
+function useOutsideClick<T extends HTMLElement = HTMLDivElement>(
+  handler: () => void,
+  listenCapturing: boolean = true
+) {
   // Tells TypeScript what kind of element this ref will point to
   // The initial value is null because the ref won't be assigned
   // until the component renders. Point to the modal.
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<T>(null);
 
   useEffect(() => {
     // Detecting a click outide the Modal, than close the modal
