@@ -40,21 +40,40 @@ const FilterButton = styled.button<FilterButtonProps>`
   }
 `;
 
-export default function Filter(): ReactElement {
+interface OptionObjType {
+  value: string;
+  label: string;
+}
+
+interface FilterProps {
+  filterField: string;
+  options: OptionObjType[];
+}
+
+function Filter({ filterField, options }: FilterProps): ReactElement {
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentFilter = searchParams.get(filterField) || options.at(0)?.value;
+
   const handleClick = (value: string) => {
     // Store Value into the URL. (Set Field - name of the state in url)
-    searchParams.set("discount", value);
+    searchParams.set(filterField, value);
     setSearchParams(searchParams);
   };
 
   return (
     <StyledFilter>
-      <FilterButton onClick={() => handleClick("all")}>All</FilterButton>
-      <FilterButton onClick={() => handleClick("no-discount")}>No discount</FilterButton>
-      <FilterButton onClick={() => handleClick("with-discount")}>
-        With discount
-      </FilterButton>
+      {options.map((option, index) => (
+        <FilterButton
+          onClick={() => handleClick(option.value)}
+          key={index + Math.random() * 0.5}
+          active={option.value === currentFilter}
+        >
+          {option.label}
+        </FilterButton>
+      ))}
     </StyledFilter>
   );
 }
+
+export default Filter;
