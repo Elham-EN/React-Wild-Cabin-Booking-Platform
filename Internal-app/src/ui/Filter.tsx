@@ -68,6 +68,7 @@ function Filter({ filterField, options }: FilterProps): ReactElement {
           onClick={() => handleClick(option.value)}
           key={index + Math.random() * 0.5}
           active={option.value === currentFilter}
+          disabled={option.value === currentFilter}
         >
           {option.label}
         </FilterButton>

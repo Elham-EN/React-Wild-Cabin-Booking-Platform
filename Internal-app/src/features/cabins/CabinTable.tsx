@@ -14,6 +14,7 @@ export default function CabinTable(): React.ReactElement {
   const filteredValue = searchParams.get("discount") || "all";
   let filteredCabins: Cabin[] | undefined;
 
+  // FILTER OPERATIONS
   if (filteredValue === "all") {
     filteredCabins = cabins;
   }
@@ -25,6 +26,38 @@ export default function CabinTable(): React.ReactElement {
   if (filteredValue === "with-discount") {
     filteredCabins = cabins?.filter((cabin) => cabin.discount > 0);
   }
+
+  // SORTING OPERATIONS
+  const sortBy = searchParams.get("sortBy") || "name-asc";
+  const [field, direction] = sortBy.split("-");
+  const modifier = direction === "asc" ? 1 : -1;
+  const sortedCabins = filteredCabins?.sort((a, b) => {
+    // For numeric properties
+    if (
+      typeof a[field as keyof Cabin] === "number" &&
+      typeof b[field as keyof Cabin] === "number"
+    ) {
+      return (
+        modifier *
+        ((a[field as keyof Cabin] as number) - (b[field as keyof Cabin] as number))
+      );
+    }
+
+    // For string properties
+    if (
+      typeof a[field as keyof Cabin] === "string" &&
+      typeof b[field as keyof Cabin] === "string"
+    ) {
+      return (
+        modifier *
+        (a[field as keyof Cabin] as string).localeCompare(
+          b[field as keyof Cabin] as string
+        )
+      );
+    }
+
+    return 0;
+  });
 
   if (isPending) return <Spinner />;
 
@@ -39,7 +72,7 @@ export default function CabinTable(): React.ReactElement {
           <div>Discount</div>
         </Table.Header>
         <Table.Body
-          data={filteredCabins}
+          data={sortedCabins}
           render={(cabin) => <CabinRow key={cabin.id} cabin={cabin} />}
         />
       </Table>
