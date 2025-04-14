@@ -145,6 +145,16 @@ export async function getCabins(): Promise<Cabin[]> {
   return cabins;
 }
 
+export async function getCabin(id: string): Promise<Cabin> {
+  const { data, error } = await supabase.from("cabins").select("*").eq("id", id).single();
+  if (error) {
+    console.error(error);
+    throw new Error("Cabins could not be loaded");
+  }
+  const cabin = data as Cabin;
+  return cabin;
+}
+
 export async function deleteCabin(id: string): Promise<void> {
   const { error } = await supabase.from("cabins").delete().eq("id", id);
   if (error) {

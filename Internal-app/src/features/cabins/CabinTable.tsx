@@ -29,6 +29,9 @@ export default function CabinTable(): React.ReactElement {
 
   // SORTING OPERATIONS
   const sortBy = searchParams.get("sortBy") || "name-asc";
+  // This reads a URL parameter like "name-asc" or "price-desc" and splits it into:
+  // field: Which property to sort by (name, price, etc.)
+  // direction: Which direction to sort (ascending or descending)
   const [field, direction] = sortBy.split("-");
   const modifier = direction === "asc" ? 1 : -1;
   const sortedCabins = filteredCabins?.sort((a, b) => {

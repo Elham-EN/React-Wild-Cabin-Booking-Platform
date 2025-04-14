@@ -1,11 +1,24 @@
 export type Booking = {
+  id: string;
   created_at: string;
   startDate: string;
   endDate: string;
+  numNights: number;
+  numGuests: number;
+  cabinPrice: number;
+  extrasPrice: number;
+  totalPrice: number;
+  hasBreakfast: boolean;
+  isPaid: boolean;
+  observations: string;
+  status: "unconfirmed" | "checked-in" | "checked-out";
   cabinId: number;
   guestId: number;
-  hasBreakfast: boolean;
-  observations: string;
-  isPaid: boolean;
-  numGuests: number;
+  cabins: {
+    name: string;
+  };
+  guests: {
+    fullName: string;
+    email: string;
+  };
 };

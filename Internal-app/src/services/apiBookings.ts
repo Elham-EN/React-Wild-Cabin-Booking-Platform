@@ -2,6 +2,17 @@ import { Booking } from "../types/booking";
 import { getToday } from "../utils/helpers";
 import { supabase } from "./supabase";
 
+export async function getAllBookings(): Promise<Booking[]> {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*, cabins(name), guests(fullName, email)");
+  if (error) {
+    throw new Error("Bookings could not be loaded");
+  }
+  const bookingsData = data as Booking[];
+  return bookingsData;
+}
+
 export async function getBooking(id: string) {
   const { data, error } = await supabase
     .from("bookings")
