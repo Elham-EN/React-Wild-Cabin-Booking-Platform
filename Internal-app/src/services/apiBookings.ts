@@ -1,20 +1,26 @@
-import { FilterType } from "../features/bookings/useGetBookings";
+import { FilterType, SortType } from "../features/bookings/useGetBookings";
 import { Booking } from "../types/booking";
 import { getToday } from "../utils/helpers";
 import { supabase } from "./supabase";
 
 export type OptionType = {
   filter: FilterType;
+  sortBy?: SortType;
 };
 
-export async function getAllBookings({ filter }: OptionType): Promise<Booking[]> {
+export async function getAllBookings({ filter, sortBy }: OptionType): Promise<Booking[]> {
   let query = supabase
     .from("bookings")
     .select("*, cabins(name), guests(fullName, email)");
 
   // API SIDE FILTERING: BOOKINGS
-  if (filter !== null) {
-    query = query.eq(filter.field, filter.value);
+  if (filter) {
+    query = query[filter.method || "eq"](filter.field, filter.value);
+  }
+
+  // API SIDE SORTING: BOOKINGS
+  if (sortBy) {
+    query = query.order(sortBy.field, { ascending: sortBy.direction === "asc" });
   }
 
   const { data, error } = await query;
