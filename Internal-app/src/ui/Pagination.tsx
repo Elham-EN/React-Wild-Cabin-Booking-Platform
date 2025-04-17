@@ -1,3 +1,6 @@
+import { ReactElement } from "react";
+import { HiChevronLeft, HiChevronRight } from "react-icons/hi2";
+import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 
 const StyledPagination = styled.div`
@@ -21,7 +24,11 @@ const Buttons = styled.div`
   gap: 0.6rem;
 `;
 
-const PaginationButton = styled.button`
+interface PaginationButtonProps {
+  active?: boolean;
+}
+
+const PaginationButton = styled.button<PaginationButtonProps>`
   background-color: ${(props) =>
     props.active ? " var(--color-brand-600)" : "var(--color-grey-50)"};
   color: ${(props) => (props.active ? " var(--color-brand-50)" : "inherit")};
@@ -55,3 +62,65 @@ const PaginationButton = styled.button`
     color: var(--color-brand-50);
   }
 `;
+
+interface PaginationProps {
+  count: number; // number of results (bookings full dataset)
+}
+
+// Need to know number of pages
+const PAGE_SIZE = 10;
+
+function Pagination({ count }: PaginationProps): ReactElement | null {
+  // Calculating the next page or previous page will depend on current page
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Get current page from the url [Keeps track of the page the user is on]
+  const currentPage = !searchParams.get("page") ? 1 : Number(searchParams.get("page"));
+
+  // Total Pages
+  const pageCount = Math.ceil(count / PAGE_SIZE);
+
+  const nextPage = () => {
+    // First check if the current page is = the page count. If we are already on
+    // the last page. In that case, the next page will also be the current page
+    // Basically we don't move to another page. But in opposite case, if we are
+    // not on the last page, then we can increase that by one
+    const next = currentPage === pageCount ? currentPage : currentPage + 1;
+    searchParams.set("page", String(next));
+    setSearchParams(searchParams);
+    console.log("pageCount = ", pageCount);
+    console.log("currentPage =", currentPage);
+    console.log("next page = ", next);
+  };
+  const previousPage = () => {
+    // Check if we are areadly on the first page
+    const prev = currentPage === 1 ? currentPage : currentPage - 1;
+    searchParams.set("page", String(prev));
+    setSearchParams(searchParams);
+    console.log("pageCount = ", pageCount);
+    console.log("currentPage =", currentPage);
+    console.log("previous page = ", prev);
+  };
+  if (pageCount <= 1) return null;
+
+  return (
+    <StyledPagination>
+      <P>
+        Showing <span>{(currentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
+        <span>{currentPage === pageCount ? count : currentPage * PAGE_SIZE}</span> of
+        <span>{count}</span> results
+      </P>
+      <Buttons>
+        <PaginationButton onClick={previousPage} disabled={currentPage === 1}>
+          <HiChevronLeft />
+          <span>Previous</span>
+        </PaginationButton>
+        <PaginationButton onClick={nextPage} disabled={currentPage === pageCount}>
+          <span>Next</span>
+          <HiChevronRight />
+        </PaginationButton>
+      </Buttons>
+    </StyledPagination>
+  );
+}
+
+export default Pagination;
