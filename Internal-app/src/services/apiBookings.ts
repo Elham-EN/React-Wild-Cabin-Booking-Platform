@@ -1,17 +1,19 @@
 import { FilterType, SortType } from "../features/bookings/useGetBookings";
 import { Booking } from "../types/booking";
+import { PAGE_SIZE } from "../utils/contants";
 import { getToday } from "../utils/helpers";
 import { supabase } from "./supabase";
 
 export type OptionType = {
   filter: FilterType;
   sortBy?: SortType;
+  page: number;
 };
 
-export async function getAllBookings({ filter, sortBy }: OptionType): Promise<Booking[]> {
+export async function getAllBookings({ filter, sortBy, page }: OptionType) {
   let query = supabase
     .from("bookings")
-    .select("*, cabins(name), guests(fullName, email)");
+    .select("*, cabins(name), guests(fullName, email)", { count: "exact" });
 
   // API SIDE FILTERING: BOOKINGS
   if (filter) {
@@ -23,13 +25,22 @@ export async function getAllBookings({ filter, sortBy }: OptionType): Promise<Bo
     query = query.order(sortBy.field, { ascending: sortBy.direction === "asc" });
   }
 
-  const { data, error } = await query;
+  // API SIDE PAGINATION
+  console.log("Next PAge");
+
+  if (page) {
+    const from = (page - 1) * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+    query = query.range(from, to);
+  }
+
+  const { data, error, count } = await query;
 
   if (error) {
     throw new Error("Bookings could not be loaded");
   }
   const bookingsData = data as Booking[];
-  return bookingsData;
+  return { bookingsData, count };
 }
 
 export async function getBooking(id: string) {

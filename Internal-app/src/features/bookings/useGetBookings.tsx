@@ -28,16 +28,18 @@ export function useGetBookings() {
   const [field, direction] = sortByRaw.split("-");
   const sortBy = { field, direction } as SortType;
 
-  const {
-    data: bookings,
-    isPending,
-    error,
-  } = useQuery({
+  // PAGINATION
+  const page = !searchParams.get("page") ? 1 : Number(searchParams.get("page"));
+
+  const { data, isPending, error } = useQuery({
     // Whenever this filter object changes, react query will refetch the data
-    queryKey: ["bookings", filter, sortBy],
+    queryKey: ["bookings", filter, sortBy, page],
     // Fetching the data from the API
-    queryFn: () => getAllBookings({ filter, sortBy }),
+    queryFn: () => getAllBookings({ filter, sortBy, page }),
   });
 
-  return { isPending, bookings, error };
+  const bookings = data?.bookingsData;
+  const count = data?.count;
+
+  return { isPending, bookings, count, error };
 }

@@ -2,6 +2,7 @@ import { ReactElement } from "react";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi2";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { PAGE_SIZE } from "../utils/contants";
 
 const StyledPagination = styled.div`
   width: 100%;
@@ -67,9 +68,6 @@ interface PaginationProps {
   count: number; // number of results (bookings full dataset)
 }
 
-// Need to know number of pages
-const PAGE_SIZE = 10;
-
 function Pagination({ count }: PaginationProps): ReactElement | null {
   // Calculating the next page or previous page will depend on current page
   const [searchParams, setSearchParams] = useSearchParams();
@@ -87,18 +85,12 @@ function Pagination({ count }: PaginationProps): ReactElement | null {
     const next = currentPage === pageCount ? currentPage : currentPage + 1;
     searchParams.set("page", String(next));
     setSearchParams(searchParams);
-    console.log("pageCount = ", pageCount);
-    console.log("currentPage =", currentPage);
-    console.log("next page = ", next);
   };
   const previousPage = () => {
     // Check if we are areadly on the first page
     const prev = currentPage === 1 ? currentPage : currentPage - 1;
     searchParams.set("page", String(prev));
     setSearchParams(searchParams);
-    console.log("pageCount = ", pageCount);
-    console.log("currentPage =", currentPage);
-    console.log("previous page = ", prev);
   };
   if (pageCount <= 1) return null;
 
@@ -106,7 +98,7 @@ function Pagination({ count }: PaginationProps): ReactElement | null {
     <StyledPagination>
       <P>
         Showing <span>{(currentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
-        <span>{currentPage === pageCount ? count : currentPage * PAGE_SIZE}</span> of
+        <span>{currentPage === pageCount ? count : currentPage * PAGE_SIZE}</span> of{" "}
         <span>{count}</span> results
       </P>
       <Buttons>
