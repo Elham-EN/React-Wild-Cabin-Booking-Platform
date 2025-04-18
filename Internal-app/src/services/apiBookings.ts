@@ -9,27 +9,43 @@ export type OptionType = {
   sortBy?: SortType;
   page: number;
 };
-
 export async function getAllBookings({ filter, sortBy, page }: OptionType) {
+  // Build the base query
   let query = supabase
     .from("bookings")
     .select("*, cabins(name), guests(fullName, email)", { count: "exact" });
 
-  // API SIDE FILTERING: BOOKINGS
+  // Apply filtering
   if (filter) {
     query = query[filter.method || "eq"](filter.field, filter.value);
   }
 
-  // API SIDE SORTING: BOOKINGS
+  // Apply sorting
   if (sortBy) {
     query = query.order(sortBy.field, { ascending: sortBy.direction === "asc" });
   }
 
-  // API SIDE PAGINATION
-  console.log("Next PAge");
+  // Apply pagination
 
-  if (page) {
-    const from = (page - 1) * PAGE_SIZE;
+  // First, get just the count using the same query without pagination
+  const { count: totalCount, error: countError } = await query;
+
+  if (countError) {
+    throw new Error("Could not count bookings");
+  }
+
+  // Now calculate and apply pagination safely
+  if (page && totalCount) {
+    // This calculates the actual total number of pages based on the real count
+    // The || 1 ensures we have at least 1 page even if count is 0
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+    // It compares the requested page with the maximum available pages
+    // If someone requests page 3 but only 1 page exists, safePage becomes 1
+    // This prevents requesting data beyond what's available
+    const safePage = Math.min(page, totalPages);
+    // The calculation of from and to using the safePage ensures we're always
+    // asking for a valid range
+    const from = (safePage - 1) * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
     query = query.range(from, to);
   }
@@ -39,9 +55,48 @@ export async function getAllBookings({ filter, sortBy, page }: OptionType) {
   if (error) {
     throw new Error("Bookings could not be loaded");
   }
+
   const bookingsData = data as Booking[];
   return { bookingsData, count };
 }
+
+// export async function getAllBookings({ filter, sortBy, page }: OptionType) {
+//   let query = supabase
+//     .from("bookings")
+//     .select("*, cabins(name), guests(fullName, email)", { count: "exact" });
+
+//   // API SIDE FILTERING: BOOKINGS
+//   if (filter) {
+//     query = query[filter.method || "eq"](filter.field, filter.value);
+//   }
+
+//   // API SIDE SORTING: BOOKINGS
+//   if (sortBy) {
+//     query = query.order(sortBy.field, { ascending: sortBy.direction === "asc" });
+//   }
+
+//   // API SIDE PAGINATION
+
+//   if (page) {
+//     console.log("Next PAge");
+//     const from = (page - 1) * PAGE_SIZE;
+//     const to = from + PAGE_SIZE - 1;
+//     query = query.range(from, to);
+//     // const totalPages = Math.ceil(count! / PAGE_SIZE) || 1;
+//     // const safePage = Math.min(page, totalPages);
+//     // const from = (safePage - 1) * PAGE_SIZE;
+//     // const to = from + PAGE_SIZE - 1;
+//     // query = query.range(from, to);
+//   }
+
+//   const { data, error, count } = await query;
+
+//   if (error) {
+//     throw new Error("Bookings could not be loaded");
+//   }
+//   const bookingsData = data as Booking[];
+//   return { bookingsData, count };
+// }
 
 export async function getBooking(id: string) {
   const { data, error } = await supabase

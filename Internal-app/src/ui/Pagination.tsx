@@ -69,44 +69,68 @@ interface PaginationProps {
 }
 
 function Pagination({ count }: PaginationProps): ReactElement | null {
-  // Calculating the next page or previous page will depend on current page
+  // Get the search parameters from the URL
   const [searchParams, setSearchParams] = useSearchParams();
-  // Get current page from the url [Keeps track of the page the user is on]
+  // Get the current page from URL, default to page 1 if not specified
   const currentPage = !searchParams.get("page") ? 1 : Number(searchParams.get("page"));
-
-  // Total Pages
+  // Calculate how many pages we need based on the total count and items per page
   const pageCount = Math.ceil(count / PAGE_SIZE);
-
+  // Make sure we don't try to show a page that doesn't exist
+  // If currentPage is 5 but we only have 3 pages, use 3
+  const safeCurrentPage = Math.min(currentPage, pageCount);
+  /**
+   * If the user somehow landed on a page that doesn't exist (for example, they were on
+   * page 5, then applied a filter that reduced results to only 2 pages) Automatically
+   * redirect them to the highest available page instead of showing an error. This
+   * prevents "page not found" scenarios when data changes.
+   * Added automatic URL correction if the current page exceeds the max page count
+   */
+  if (currentPage > pageCount) {
+    searchParams.set("page", String(pageCount));
+    setSearchParams(searchParams);
+  }
+  // Calculate item range correctly - Ensure they never exceed the actual count
+  // Calculate the first item number we're showing
+  // Example: On page 2 with 10 items per page, this would be 11
+  // Also make sure we don't show a number higher than the total count
+  const from = Math.min((safeCurrentPage - 1) * PAGE_SIZE + 1, count);
+  // Calculate the last item number we're showing
+  // Example: On page 2 with 10 items per page, this would be 20
+  // Also make sure we don't show a number higher than the total count
+  const to = Math.min(safeCurrentPage * PAGE_SIZE, count);
+  // Function to go to the next page
   const nextPage = () => {
-    // First check if the current page is = the page count. If we are already on
-    // the last page. In that case, the next page will also be the current page
-    // Basically we don't move to another page. But in opposite case, if we are
-    // not on the last page, then we can increase that by one
-    const next = currentPage === pageCount ? currentPage : currentPage + 1;
+    // If we're already on the last page, stay there
+    // Otherwise, go to the next page
+    const next = safeCurrentPage === pageCount ? safeCurrentPage : safeCurrentPage + 1;
     searchParams.set("page", String(next));
     setSearchParams(searchParams);
   };
+  // Function to go to the previous page
   const previousPage = () => {
-    // Check if we are areadly on the first page
-    const prev = currentPage === 1 ? currentPage : currentPage - 1;
+    // If we're already on the first page, stay there
+    // Otherwise, go to the previous page
+    const prev = safeCurrentPage === 1 ? safeCurrentPage : safeCurrentPage - 1;
     searchParams.set("page", String(prev));
     setSearchParams(searchParams);
   };
+  // If there's only one page or less, don't show pagination at all
   if (pageCount <= 1) return null;
 
   return (
     <StyledPagination>
       <P>
-        Showing <span>{(currentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
-        <span>{currentPage === pageCount ? count : currentPage * PAGE_SIZE}</span> of{" "}
-        <span>{count}</span> results
+        {/* Display which items we're currently showing */}
+        Showing <span>{from}</span> to <span>{to}</span> of <span>{count}</span> results
       </P>
       <Buttons>
-        <PaginationButton onClick={previousPage} disabled={currentPage === 1}>
+        {/* Previous button - disabled if we're on page 1 */}
+        <PaginationButton onClick={previousPage} disabled={safeCurrentPage === 1}>
           <HiChevronLeft />
           <span>Previous</span>
         </PaginationButton>
-        <PaginationButton onClick={nextPage} disabled={currentPage === pageCount}>
+        {/* Next button - disabled if we're on the last page */}
+        <PaginationButton onClick={nextPage} disabled={safeCurrentPage === pageCount}>
           <span>Next</span>
           <HiChevronRight />
         </PaginationButton>

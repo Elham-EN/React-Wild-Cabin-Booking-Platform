@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllBookings } from "../../services/apiBookings";
 import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
 
 export type FilterType = {
   field: string;
@@ -14,7 +15,7 @@ export type SortType = {
 } | null;
 
 export function useGetBookings() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // FILTER
   const filterValue = searchParams.get("status");
@@ -37,6 +38,22 @@ export function useGetBookings() {
     // Fetching the data from the API
     queryFn: () => getAllBookings({ filter, sortBy, page }),
   });
+
+  // Handle pagination errors with useEffect
+  useEffect(() => {
+    if (error) {
+      // Check for Supabase pagination error
+      const errorMessage = String(error);
+      if (
+        errorMessage.includes("Requested range not satisfiable") ||
+        errorMessage.includes("PGRST103")
+      ) {
+        // Reset to page 1
+        searchParams.set("page", "1");
+        setSearchParams(searchParams);
+      }
+    }
+  }, [error, searchParams, setSearchParams]);
 
   const bookings = data?.bookingsData;
   const count = data?.count;
