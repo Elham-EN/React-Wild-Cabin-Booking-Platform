@@ -9,44 +9,56 @@ export type OptionType = {
   sortBy?: SortType;
   page: number;
 };
+
+/**
+ * Fetches bookings data from Supabase with filtering, sorting, and pagination
+ *
+ * @param {object} options - Query options
+ * @param {FilterType} options.filter - Filter criteria (field, value, method)
+ * @param {SortType} options.sortBy - Sorting criteria (field, direction)
+ * @param {number} options.page - The page number to fetch
+ * @returns {Promise<{bookingsData: Booking[], count: number}>} - Bookings and total count
+ */
 export async function getAllBookings({ filter, sortBy, page }: OptionType) {
-  // Build the base query
+  // Create initial query to get bookings with related cabin and guest data
+  // The { count: "exact" } tells Supabase to return the total count of records
   let query = supabase
     .from("bookings")
     .select("*, cabins(name), guests(fullName, email)", { count: "exact" });
-
-  // Apply filtering
+  // Add filtering if provided (e.g., filter by status="checked-in")
+  // Uses dynamic method (eq, gt, lt) based on filter.method or defaults to equals
   if (filter) {
     query = query[filter.method || "eq"](filter.field, filter.value);
   }
-
-  // Apply sorting
+  // Add sorting if provided (e.g., sort by startDate in ascending order)
   if (sortBy) {
     query = query.order(sortBy.field, { ascending: sortBy.direction === "asc" });
   }
-
-  // Apply pagination
-
-  // First, get just the count using the same query without pagination
+  // First, execute the query just to get the total count of filtered records
+  // This helps us calculate proper pagination limits
   const { count: totalCount, error: countError } = await query;
 
   if (countError) {
     throw new Error("Could not count bookings");
   }
-
-  // Now calculate and apply pagination safely
+  /**
+   * Apply pagination safely to prevent "Requested range not satisfiable" errors
+   * This ensures we never request data beyond what actually exists in the database
+   */
   if (page && totalCount) {
-    // This calculates the actual total number of pages based on the real count
-    // The || 1 ensures we have at least 1 page even if count is 0
+    // Calculate the total number of pages needed based on page size
+    // The "|| 1" ensures we always have at least 1 page, even if count is 0
     const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
-    // It compares the requested page with the maximum available pages
-    // If someone requests page 3 but only 1 page exists, safePage becomes 1
-    // This prevents requesting data beyond what's available
+    // Create a "safe" page number that won't exceed available pages
+    // If user requests page 5 but we only have 3 pages, this becomes 3
     const safePage = Math.min(page, totalPages);
-    // The calculation of from and to using the safePage ensures we're always
-    // asking for a valid range
+    // Calculate the "from" index (first record to fetch)
+    // Example: Page 2 with page size 10 would start at index 10
     const from = (safePage - 1) * PAGE_SIZE;
+    // Calculate the "to" index (last record to fetch)
+    // Example: Page 2 with page size 10 would end at index 19
     const to = from + PAGE_SIZE - 1;
+    // Apply the range to our query
     query = query.range(from, to);
   }
 
@@ -59,44 +71,6 @@ export async function getAllBookings({ filter, sortBy, page }: OptionType) {
   const bookingsData = data as Booking[];
   return { bookingsData, count };
 }
-
-// export async function getAllBookings({ filter, sortBy, page }: OptionType) {
-//   let query = supabase
-//     .from("bookings")
-//     .select("*, cabins(name), guests(fullName, email)", { count: "exact" });
-
-//   // API SIDE FILTERING: BOOKINGS
-//   if (filter) {
-//     query = query[filter.method || "eq"](filter.field, filter.value);
-//   }
-
-//   // API SIDE SORTING: BOOKINGS
-//   if (sortBy) {
-//     query = query.order(sortBy.field, { ascending: sortBy.direction === "asc" });
-//   }
-
-//   // API SIDE PAGINATION
-
-//   if (page) {
-//     console.log("Next PAge");
-//     const from = (page - 1) * PAGE_SIZE;
-//     const to = from + PAGE_SIZE - 1;
-//     query = query.range(from, to);
-//     // const totalPages = Math.ceil(count! / PAGE_SIZE) || 1;
-//     // const safePage = Math.min(page, totalPages);
-//     // const from = (safePage - 1) * PAGE_SIZE;
-//     // const to = from + PAGE_SIZE - 1;
-//     // query = query.range(from, to);
-//   }
-
-//   const { data, error, count } = await query;
-
-//   if (error) {
-//     throw new Error("Bookings could not be loaded");
-//   }
-//   const bookingsData = data as Booking[];
-//   return { bookingsData, count };
-// }
 
 export async function getBooking(id: string) {
   const { data, error } = await supabase
