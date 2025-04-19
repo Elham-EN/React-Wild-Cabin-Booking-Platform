@@ -125,7 +125,7 @@ function BookingDataBox({ booking }: BookingDataBoxProps): ReactElement {
     hasBreakfast,
     observations,
     isPaid,
-    guests: { fullName: guestName, email, nationality, countryFlag, nationalId },
+    guests: { fullName: guestName, email, nationality, countryFlag, nationalID },
     cabins: { name: cabinName },
   } = booking;
 
@@ -155,7 +155,7 @@ function BookingDataBox({ booking }: BookingDataBoxProps): ReactElement {
           <span>&bull;</span>
           <p>{email}</p>
           <span>&bull;</span>
-          <p>National ID {nationalId}</p>
+          <p>National ID {nationalID}</p>
         </Guest>
 
         {observations && (
