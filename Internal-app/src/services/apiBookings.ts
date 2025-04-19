@@ -1,5 +1,5 @@
 import { FilterType, SortType } from "../features/bookings/useGetBookings";
-import { Booking } from "../types/booking";
+import { Booking, UpdateBooking } from "../types/booking";
 import { PAGE_SIZE } from "../utils/contants";
 import { getToday } from "../utils/helpers";
 import { supabase } from "./supabase";
@@ -143,7 +143,7 @@ export async function getStaysTodayActivity() {
   return data;
 }
 
-export async function updateBooking(id: string, obj: Booking) {
+export async function updateBooking(id: string, obj: UpdateBooking) {
   const { data, error } = await supabase
     .from("bookings")
     .update(obj)
@@ -155,7 +155,10 @@ export async function updateBooking(id: string, obj: Booking) {
     console.error(error);
     throw new Error("Booking could not be updated");
   }
-  return data;
+
+  const bookingData = data as Booking;
+
+  return bookingData;
 }
 
 export async function deleteBooking(id: string) {

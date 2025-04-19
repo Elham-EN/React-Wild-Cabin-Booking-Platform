@@ -25,3 +25,9 @@ export type Booking = {
     countryFlag: string;
   };
 };
+
+export type UpdateBooking = {
+  id?: string;
+  isPaid: boolean;
+  status: "unconfirmed" | "checked-in" | "checked-out";
+};
