@@ -20,5 +20,8 @@ export type Booking = {
   guests: {
     fullName: string;
     email: string;
+    nationalId: string;
+    nationality: string;
+    countryFlag: string;
   };
 };

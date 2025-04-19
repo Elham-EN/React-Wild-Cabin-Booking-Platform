@@ -11,6 +11,8 @@ import DataItem from "../../ui/DataItem";
 import { Flag } from "../../ui/Flag";
 
 import { formatDistanceFromNow, formatCurrency } from "../../utils/helpers";
+import { Booking } from "../../types/booking";
+import { ReactElement } from "react";
 
 const StyledBookingDataBox = styled.section`
   /* Box */
@@ -68,7 +70,11 @@ const Guest = styled.div`
   }
 `;
 
-const Price = styled.div`
+interface PriceProps {
+  isPaid: boolean;
+}
+
+const Price = styled.div<PriceProps>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -101,8 +107,12 @@ const Footer = styled.footer`
   text-align: right;
 `;
 
+interface BookingDataBoxProps {
+  booking: Booking;
+}
+
 // A purely presentational component
-function BookingDataBox({ booking }) {
+function BookingDataBox({ booking }: BookingDataBoxProps): ReactElement {
   const {
     created_at,
     startDate,
@@ -115,7 +125,7 @@ function BookingDataBox({ booking }) {
     hasBreakfast,
     observations,
     isPaid,
-    guests: { fullName: guestName, email, country, countryFlag, nationalID },
+    guests: { fullName: guestName, email, nationality, countryFlag, nationalId },
     cabins: { name: cabinName },
   } = booking;
 
@@ -131,30 +141,25 @@ function BookingDataBox({ booking }) {
 
         <p>
           {format(new Date(startDate), "EEE, MMM dd yyyy")} (
-          {isToday(new Date(startDate))
-            ? "Today"
-            : formatDistanceFromNow(startDate)}
-          ) &mdash; {format(new Date(endDate), "EEE, MMM dd yyyy")}
+          {isToday(new Date(startDate)) ? "Today" : formatDistanceFromNow(startDate)})
+          &mdash; {format(new Date(endDate), "EEE, MMM dd yyyy")}
         </p>
       </Header>
 
       <Section>
         <Guest>
-          {countryFlag && <Flag src={countryFlag} alt={`Flag of ${country}`} />}
+          {countryFlag && <Flag src={countryFlag} alt={`Flag of ${nationality}`} />}
           <p>
             {guestName} {numGuests > 1 ? `+ ${numGuests - 1} guests` : ""}
           </p>
           <span>&bull;</span>
           <p>{email}</p>
           <span>&bull;</span>
-          <p>National ID {nationalID}</p>
+          <p>National ID {nationalId}</p>
         </Guest>
 
         {observations && (
-          <DataItem
-            icon={<HiOutlineChatBubbleBottomCenterText />}
-            label="Observations"
-          >
+          <DataItem icon={<HiOutlineChatBubbleBottomCenterText />} label="Observations">
             {observations}
           </DataItem>
         )}
