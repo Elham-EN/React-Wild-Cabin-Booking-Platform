@@ -58,6 +58,7 @@ function Filter({ filterField, options }: FilterProps): ReactElement {
   const handleClick = (value: string) => {
     // Store Value into the URL. (Set Field - name of the state in url)
     searchParams.set(filterField, value);
+    if (searchParams.get("page")) searchParams.set("page", String(1));
     setSearchParams(searchParams);
   };
 
