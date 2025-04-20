@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { login } from "../../services/apiAuth";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -9,12 +9,17 @@ type LoginType = {
 };
 
 export function useLogin() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { mutate: loginMutate, isPending } = useMutation({
     mutationFn: ({ email, password }: LoginType) => login(email, password),
     onSuccess: (user) => {
-      console.log("User Data", user);
       toast.success("User has been authenticated");
+      // store this returned user data from server into React Query's cache
+      // Components don't need to refetch this user data from server.
+      // The user sees their login state change immediately ithout needing
+      // additional network requests.
+      queryClient.setQueriesData({ queryKey: ["user"] }, user);
       navigate("/dashboard");
     },
     onError: (err) => {
