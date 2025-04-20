@@ -28,6 +28,6 @@ export type Booking = {
 
 export type UpdateBooking = {
   id?: string;
-  isPaid: boolean;
+  isPaid?: boolean;
   status: "unconfirmed" | "checked-in" | "checked-out";
 };

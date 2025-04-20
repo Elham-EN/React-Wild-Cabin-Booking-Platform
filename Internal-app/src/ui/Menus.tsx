@@ -170,9 +170,10 @@ interface ButtonProps {
   children: React.ReactNode;
   icon?: React.ReactElement;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean;
 }
 
-function Button({ children, icon, onClick }: ButtonProps): React.ReactElement {
+function Button({ children, icon, onClick, disabled }: ButtonProps): React.ReactElement {
   const { close } = useMenusContext();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (onClick) onClick(event);
@@ -181,7 +182,7 @@ function Button({ children, icon, onClick }: ButtonProps): React.ReactElement {
 
   return (
     <li>
-      <StyledButton onClick={handleClick}>
+      <StyledButton onClick={handleClick} disabled={disabled}>
         {icon}
         <span>{children}</span>
       </StyledButton>

@@ -3,11 +3,6 @@ import styled, { css } from "styled-components";
 type Size = "small" | "medium" | "large";
 type Variation = "primary" | "secondary" | "danger";
 
-interface ButtonProps {
-  size?: Size;
-  variation?: Variation;
-}
-
 const sizes = {
   small: css`
     font-size: 1.2rem;
@@ -52,6 +47,11 @@ const variations = {
     }
   `,
 };
+
+interface ButtonProps {
+  size?: Size;
+  variation?: Variation;
+}
 
 const Button = styled.button<ButtonProps>`
   border: none;
