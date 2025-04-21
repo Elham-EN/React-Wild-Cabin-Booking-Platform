@@ -4,6 +4,7 @@ import ButtonGroup from "../../ui/ButtonGroup";
 import Form from "../../ui/Form";
 import FormRow from "../../ui/FormRow";
 import Input from "../../ui/Input";
+import { useSignup } from "./useSignup";
 
 interface SignUpFormData {
   fullName: string;
@@ -18,12 +19,16 @@ function SignupForm(): React.ReactElement {
     formState: { errors },
     getValues,
     handleSubmit,
+    reset,
   } = useForm<SignUpFormData>();
 
+  const { signupMutate, isPending } = useSignup();
+
   const onSubmit = (data: SignUpFormData) => {
-    console.log("====================================");
-    console.log(data);
-    console.log("====================================");
+    signupMutate(
+      { fullname: data.fullName, email: data.email, password: data.password },
+      { onSettled: () => reset() }
+    );
   };
 
   return (
@@ -33,6 +38,7 @@ function SignupForm(): React.ReactElement {
           type="text"
           id="fullName"
           {...register("fullName", { required: "This field is required" })}
+          disabled={isPending}
         />
       </FormRow>
 
@@ -47,6 +53,7 @@ function SignupForm(): React.ReactElement {
               message: "Please provide valid email address",
             },
           })}
+          disabled={isPending}
         />
       </FormRow>
 
@@ -61,6 +68,7 @@ function SignupForm(): React.ReactElement {
               message: "Password needs a minimun of 8 characters",
             },
           })}
+          disabled={isPending}
         />
       </FormRow>
 
@@ -73,6 +81,7 @@ function SignupForm(): React.ReactElement {
             validate: (value) =>
               value === getValues().password || "Passwords need to match",
           })}
+          disabled={isPending}
         />
       </FormRow>
 
@@ -80,7 +89,7 @@ function SignupForm(): React.ReactElement {
         <Button variation="secondary" type="reset">
           Cancel
         </Button>
-        <Button>Create new user</Button>
+        <Button disabled={isPending}>Create new user</Button>
       </ButtonGroup>
     </Form>
   );
