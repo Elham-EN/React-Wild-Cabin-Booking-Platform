@@ -1,4 +1,6 @@
+import React from "react";
 import styled from "styled-components";
+import { useGetUser } from "./useGetUser";
 
 export const StyledUserAvatar = styled.div`
   display: flex;
@@ -19,3 +21,20 @@ export const Avatar = styled.img`
   border-radius: 50%;
   outline: 2px solid var(--color-grey-100);
 `;
+
+type UserMetaData = {
+  fullname: string;
+  avatar: string;
+};
+
+export default function UserAvatar(): React.ReactElement {
+  const { user } = useGetUser();
+  const { fullname, avatar } = user?.user_metadata as UserMetaData;
+
+  return (
+    <StyledUserAvatar>
+      <Avatar src={avatar || "default-user.jpg"} alt={`Avatar of ${fullname}`} />
+      <span>{fullname}</span>
+    </StyledUserAvatar>
+  );
+}
