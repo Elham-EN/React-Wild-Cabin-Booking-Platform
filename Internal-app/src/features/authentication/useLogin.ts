@@ -14,10 +14,10 @@ export function useLogin() {
   const { mutate: loginMutate, isPending } = useMutation({
     mutationFn: ({ email, password }: LoginType) => login(email, password),
     onSuccess: (user) => {
-      // toast.success("User has been authenticated");
+      toast.success("User has been authenticated");
       // store this returned user data from server into React Query's cache
       // Components don't need to refetch this user data from server.
-      // The user sees their login state change immediately ithout needing
+      // The user sees their login state change immediately without needing
       // additional network requests.
       queryClient.setQueryData(["user"], user.user);
       navigate("/dashboard");
