@@ -1,27 +1,31 @@
 import { useForm } from "react-hook-form";
-import Button from "../../ui/Button";
+import { useUpdateUser } from "./useUpdateUser";
+import Button from "../../ui/Button/Button";
 import Form from "../../ui/Form";
 import FormRow from "../../ui/FormRow";
 import Input from "../../ui/Input";
+import ButtonGroup from "../../ui/ButtonGroup";
+import { ReactElement } from "react";
 
-import { useUpdateUser } from "./useUpdateUser";
+interface UpdatePassword {
+  password: string;
+  passwordConfirm: string;
+}
 
-function UpdatePasswordForm() {
-  const { register, handleSubmit, formState, getValues, reset } = useForm();
+function UpdatePasswordForm(): ReactElement {
+  const { register, handleSubmit, formState, getValues, reset } =
+    useForm<UpdatePassword>();
   const { errors } = formState;
 
-  const { updateUser, isUpdating } = useUpdateUser();
+  const { updateUserMutate, isUpdating } = useUpdateUser();
 
-  function onSubmit({ password }) {
-    updateUser({ password }, { onSuccess: reset });
+  function onSubmit({ password }: UpdatePassword) {
+    updateUserMutate({ password }, { onSuccess: () => reset() });
   }
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      <FormRow
-        label="Password (min 8 characters)"
-        error={errors?.password?.message}
-      >
+      <FormRow label="Password (min 8 characters)" error={errors?.password?.message}>
         <Input
           type="password"
           id="password"
@@ -39,7 +43,7 @@ function UpdatePasswordForm() {
 
       <FormRow
         label="Confirm password"
-        error={errors?.passwordConfirm?.message}
+        error={errors?.passwordConfirm?.message as string}
       >
         <Input
           type="password"
@@ -53,12 +57,12 @@ function UpdatePasswordForm() {
           })}
         />
       </FormRow>
-      <FormRow>
-        <Button onClick={reset} type="reset" variation="secondary">
+      <ButtonGroup>
+        <Button onClick={() => reset()} type="reset" variation="secondary">
           Cancel
         </Button>
         <Button disabled={isUpdating}>Update password</Button>
-      </FormRow>
+      </ButtonGroup>
     </Form>
   );
 }
