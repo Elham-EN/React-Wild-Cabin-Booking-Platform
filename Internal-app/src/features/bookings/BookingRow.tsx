@@ -61,7 +61,7 @@ function BookingRow({ booking }: BookingRowProps) {
 
   return (
     <Table.Row>
-      <Cabin>{booking.cabins.name || "Loading..."}</Cabin>
+      <Cabin>{booking.cabins?.name || "Loading..."}</Cabin>
 
       <Stacked>
         <span>{booking.guests.fullName || "Loading..."}</span>
