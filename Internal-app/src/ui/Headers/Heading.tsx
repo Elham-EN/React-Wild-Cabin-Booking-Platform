@@ -27,7 +27,7 @@ const Heading = styled.h1.attrs<HeaderProps>(({ as = "h1" }) => ({
 }))<HeaderProps>`
   font-size: ${(props) => fontSize[props.as as HeadingLevel]};
   font-weight: ${(props) => fontWeight[props.as as HeadingLevel]};
-  color: ${(props) => props.color || "#333"};
+  /* color: ${(props) => props.color || "#333"}; */
   line-height: 1.2;
 
   ${(props) =>
