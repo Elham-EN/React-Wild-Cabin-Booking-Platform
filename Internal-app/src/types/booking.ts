@@ -31,3 +31,9 @@ export type UpdateBooking = {
   isPaid?: boolean;
   status: "unconfirmed" | "checked-in" | "checked-out";
 };
+
+export type BookingsAfterDate = {
+  created_at: string;
+  totalPrice: number;
+  extrasPrice: number;
+};
