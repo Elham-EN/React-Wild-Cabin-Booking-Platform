@@ -1,4 +1,9 @@
 import styled from "styled-components";
+import { Booking } from "../../types/booking";
+import { ReactElement } from "react";
+import Heading from "../../ui/Headers/Heading";
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { useDarkMode } from "../../context/useDarkMode";
 
 const ChartBox = styled.div`
   /* Box */
@@ -104,15 +109,43 @@ const startDataDark = [
   },
 ];
 
-function prepareData(startData, stays) {
-  // A bit ugly code, but sometimes this is what it takes when working with real data 😅
+interface StartData {
+  duration: string;
+  value: number;
+  color: string;
+}
 
-  function incArrayValue(arr, field) {
+/**
+ * Analyzes booking data to create a summary of stay durations
+ * @returns Processed data showing counts for each duration category that has bookings
+ * @argument This kind of information is perfect for creating charts that show your
+ * booking patterns.
+ */
+function prepareData(startData: StartData[], stays: Booking[]): StartData[] {
+  /**
+   * @description This function takes an array of objects and a field value.
+   * It looks through each object and increases the value property by 1 for
+   * any object whose duration property matches the specified field.
+   * @param arr An array of objects
+   * @param field The value to match against each object's duration property.
+   * @returns A new array with the same objects as the input, but with the
+   * value property incremented by 1 for objects that match the condition
+   */
+  const incArrayValue = (arr: StartData[], field: string) => {
     return arr.map((obj) =>
       obj.duration === field ? { ...obj, value: obj.value + 1 } : obj
     );
-  }
+  };
 
+  /**
+   * Categorizes bookings based on their duration (number of nights) and counts them
+   * @param startData - Initial array of duration categories with zero counts
+   * @param stays - Array of booking objects to analyze
+   * @returns Filtered array showing only categories that have at least one booking
+   * @description a collection of bookings and organizes them by how long each stay lasted
+   * @example For example, if a booking was for 5 nights, it adds +1 to the
+   * "4-5 nights" category
+   */
   const data = stays
     .reduce((arr, cur) => {
       const num = cur.numNights;
@@ -130,3 +163,46 @@ function prepareData(startData, stays) {
 
   return data;
 }
+
+interface DurationChartProps {
+  confirmedStays: Booking[] | undefined;
+}
+
+function DurationChart({ confirmedStays }: DurationChartProps): ReactElement {
+  const { isDarkMode } = useDarkMode();
+  const startData = isDarkMode ? startDataDark : startDataLight;
+  const data = prepareData(startData, confirmedStays!);
+  return (
+    <ChartBox>
+      <Heading as="h2">Stay duration summary</Heading>
+      <ResponsiveContainer width={"100%"} height={240}>
+        <PieChart>
+          <Pie
+            data={data}
+            nameKey="duration"
+            dataKey="value"
+            innerRadius={85}
+            outerRadius={110}
+            cy={"50%"}
+            cx={"40%"}
+            paddingAngle={3}
+          >
+            {data.map((entry) => (
+              <Cell fill={entry.color} stroke={entry.color} key={entry.duration} />
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend
+            verticalAlign="middle"
+            align="right"
+            layout="vertical"
+            iconType="circle"
+            iconSize={15}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </ChartBox>
+  );
+}
+
+export default DurationChart;

@@ -1,11 +1,11 @@
 import { ReactElement } from "react";
 import styled from "styled-components";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
 import DashboardBox from "./DashboardBox";
 import Heading from "../../ui/Headers/Heading";
 import { useDarkMode } from "../../context/useDarkMode";
 import { BookingsAfterDate } from "../../types/booking";
-import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
 
 const StyledSalesChart = styled(DashboardBox)`
   grid-column: 1 / -1;
@@ -72,7 +72,10 @@ function SalesChart({ bookings, numDays }: SalesChartProps): ReactElement {
       };
   return (
     <StyledSalesChart>
-      <Heading as="h2">Sales</Heading>
+      <Heading as="h2">
+        Sales from {format(allDates.at(0)!, "MMM dd yyy")} to{" "}
+        {format(allDates.at(-1)!, "MMM dd yyy")}{" "}
+      </Heading>
       <ResponsiveContainer width={"100%"} height={240}>
         <AreaChart data={data}>
           <XAxis

@@ -6,6 +6,8 @@ import { useRecentStays } from "./useRecentStays";
 import Stats from "./Stats";
 import { useGetCabins } from "../cabins/useGetCabins";
 import SalesChart from "./SalesChart";
+import DurationChart from "./DurationChart";
+import TodayActivity from "../check-in-out/TodayActivity";
 
 const StyledDashboardLayout = styled.div`
   display: grid;
@@ -30,6 +32,8 @@ export default function DashboardLayout(): React.ReactElement {
         numDays={numDays}
         cabinCount={cabinCount!}
       />
+      <TodayActivity />
+      <DurationChart confirmedStays={confirmedStays} />
       <SalesChart bookings={bookings} numDays={numDays} />
     </StyledDashboardLayout>
   );
