@@ -5,6 +5,7 @@ import Spinner from "../../ui/Spinner";
 import { useRecentStays } from "./useRecentStays";
 import Stats from "./Stats";
 import { useGetCabins } from "../cabins/useGetCabins";
+import SalesChart from "./SalesChart";
 
 const StyledDashboardLayout = styled.div`
   display: grid;
@@ -29,6 +30,7 @@ export default function DashboardLayout(): React.ReactElement {
         numDays={numDays}
         cabinCount={cabinCount!}
       />
+      <SalesChart />
     </StyledDashboardLayout>
   );
 }
