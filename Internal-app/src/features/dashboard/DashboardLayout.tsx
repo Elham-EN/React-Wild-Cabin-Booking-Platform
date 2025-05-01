@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { useRecentBookings } from "./useRecentBookings";
 import Spinner from "../../ui/Spinner";
 import { useRecentStays } from "./useRecentStays";
+import Stats from "./Stats";
+import { useGetCabins } from "../cabins/useGetCabins";
 
 const StyledDashboardLayout = styled.div`
   display: grid;
@@ -13,16 +15,20 @@ const StyledDashboardLayout = styled.div`
 
 export default function DashboardLayout(): React.ReactElement {
   const { bookings, isLoading: isLoading1 } = useRecentBookings();
-  const { confirmedStays, isLoading: isLoading2 } = useRecentStays();
+  const { confirmedStays, isLoading: isLoading2, numDays } = useRecentStays();
+  const { cabins, isPending } = useGetCabins();
+  const cabinCount = cabins?.length;
 
-  if (isLoading1 || isLoading2) return <Spinner />;
+  if (isLoading1 || isLoading2 || isPending) return <Spinner />;
 
-  console.log("====================================");
-  console.log("Bookings after date", bookings);
-  console.log("====================================");
-  console.log("====================================");
-  console.log("Confirmed Stays", confirmedStays);
-  console.log("====================================");
-
-  return <StyledDashboardLayout></StyledDashboardLayout>;
+  return (
+    <StyledDashboardLayout>
+      <Stats
+        bookings={bookings}
+        stays={confirmedStays}
+        numDays={numDays}
+        cabinCount={cabinCount!}
+      />
+    </StyledDashboardLayout>
+  );
 }

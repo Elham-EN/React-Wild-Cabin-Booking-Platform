@@ -1,4 +1,21 @@
+import { ReactElement, ReactNode } from "react";
 import styled from "styled-components";
+
+// Define color options as a union type for better type checking
+type ColorOption = "blue" | "green" | "indigo" | "yellow" | "red" | "purple";
+
+// Props interface for the Stat component
+interface StatProps {
+  icon: ReactNode;
+  title: string;
+  value: string | number;
+  color: ColorOption;
+}
+
+// Props type for the Icon styled component
+interface IconProps {
+  color: ColorOption;
+}
 
 const StyledStat = styled.div`
   /* Box */
@@ -14,7 +31,7 @@ const StyledStat = styled.div`
   row-gap: 0.4rem;
 `;
 
-const Icon = styled.div`
+const Icon = styled.div<IconProps>`
   grid-row: 1 / -1;
   aspect-ratio: 1;
   border-radius: 50%;
@@ -47,7 +64,7 @@ const Value = styled.p`
   font-weight: 500;
 `;
 
-function Stat({ icon, title, value, color }) {
+function Stat({ icon, title, value, color }: StatProps): ReactElement {
   return (
     <StyledStat>
       <Icon color={color}>{icon}</Icon>
