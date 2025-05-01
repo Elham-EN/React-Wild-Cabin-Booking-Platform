@@ -1,8 +1,11 @@
+import { ReactElement } from "react";
 import styled from "styled-components";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import DashboardBox from "./DashboardBox";
 import Heading from "../../ui/Headers/Heading";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useDarkMode } from "../../context/useDarkMode";
+import { BookingsAfterDate } from "../../types/booking";
+import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
 
 const StyledSalesChart = styled(DashboardBox)`
   grid-column: 1 / -1;
@@ -14,40 +17,46 @@ const StyledSalesChart = styled(DashboardBox)`
   }
 `;
 
-const fakeData = [
-  { label: "Jan 09", totalSales: 480, extrasSales: 20 },
-  { label: "Jan 10", totalSales: 580, extrasSales: 100 },
-  { label: "Jan 11", totalSales: 550, extrasSales: 150 },
-  { label: "Jan 12", totalSales: 600, extrasSales: 50 },
-  { label: "Jan 13", totalSales: 700, extrasSales: 150 },
-  { label: "Jan 14", totalSales: 800, extrasSales: 150 },
-  { label: "Jan 15", totalSales: 700, extrasSales: 200 },
-  { label: "Jan 16", totalSales: 650, extrasSales: 200 },
-  { label: "Jan 17", totalSales: 600, extrasSales: 300 },
-  { label: "Jan 18", totalSales: 550, extrasSales: 100 },
-  { label: "Jan 19", totalSales: 700, extrasSales: 100 },
-  { label: "Jan 20", totalSales: 800, extrasSales: 200 },
-  { label: "Jan 21", totalSales: 700, extrasSales: 100 },
-  { label: "Jan 22", totalSales: 810, extrasSales: 50 },
-  { label: "Jan 23", totalSales: 950, extrasSales: 250 },
-  { label: "Jan 24", totalSales: 970, extrasSales: 100 },
-  { label: "Jan 25", totalSales: 900, extrasSales: 200 },
-  { label: "Jan 26", totalSales: 950, extrasSales: 300 },
-  { label: "Jan 27", totalSales: 850, extrasSales: 200 },
-  { label: "Jan 28", totalSales: 900, extrasSales: 100 },
-  { label: "Jan 29", totalSales: 800, extrasSales: 300 },
-  { label: "Jan 30", totalSales: 950, extrasSales: 200 },
-  { label: "Jan 31", totalSales: 1100, extrasSales: 300 },
-  { label: "Feb 01", totalSales: 1200, extrasSales: 400 },
-  { label: "Feb 02", totalSales: 1250, extrasSales: 300 },
-  { label: "Feb 03", totalSales: 1400, extrasSales: 450 },
-  { label: "Feb 04", totalSales: 1500, extrasSales: 500 },
-  { label: "Feb 05", totalSales: 1400, extrasSales: 600 },
-  { label: "Feb 06", totalSales: 1450, extrasSales: 400 },
-];
+interface SalesChartProps {
+  bookings: BookingsAfterDate[] | undefined;
+  numDays: number;
+}
 
-function SalesChart(): React.ReactElement {
+function SalesChart({ bookings, numDays }: SalesChartProps): ReactElement {
   const { isDarkMode } = useDarkMode();
+
+  /**
+   * Creates an array of dates from a specific number of days ago until today
+   * new Date() - Creates today's date
+   * subDays(new Date(), numDays - 1) - Goes back in time by taking today's date
+   * and subtracting (numDays - 1) days from it
+   * For example, if numDays is 7, this creates a date that's 6 days ago
+   * Example: If numDays is 7 and today is May 1, 2025, allDates will contain date
+   * objects for:
+   * April 25, April 26, April 27, April 28, April 29, April 30, and May 1, 2025
+   */
+  const allDates = eachDayOfInterval({
+    start: subDays(new Date(), numDays - 1),
+    end: new Date(),
+  });
+
+  const data = allDates.map((date) => {
+    return {
+      label: format(date, "MMM dd"),
+      // Calculates the total sales amount for each day in our date range
+      // Example: If on May 1st we had three bookings with prices $50, $75,
+      // and $100, the totalSales for May 1st would be $225.
+      totalSales: bookings
+        // Filter: Only keeps bookings that match the current day
+        ?.filter((booking) => isSameDay(date, new Date(booking.created_at)))
+        // Sum up all the matching bookings' prices: Total Sales Amount
+        .reduce((acc, cur) => acc + cur.totalPrice, 0),
+      extrasSales: bookings
+        ?.filter((booking) => isSameDay(date, new Date(booking.created_at)))
+        .reduce((acc, cur) => acc + cur.extrasPrice, 0),
+    };
+  });
+
   const colors = isDarkMode
     ? {
         totalSales: { stroke: "#4f46e5", fill: "#4f46e5" },
@@ -65,7 +74,7 @@ function SalesChart(): React.ReactElement {
     <StyledSalesChart>
       <Heading as="h2">Sales</Heading>
       <ResponsiveContainer width={"100%"} height={240}>
-        <AreaChart data={fakeData}>
+        <AreaChart data={data}>
           <XAxis
             dataKey={"label"}
             axisLine={false}

@@ -30,7 +30,7 @@ export default function DashboardLayout(): React.ReactElement {
         numDays={numDays}
         cabinCount={cabinCount!}
       />
-      <SalesChart />
+      <SalesChart bookings={bookings} numDays={numDays} />
     </StyledDashboardLayout>
   );
 }
