@@ -15,7 +15,7 @@ type RootLayoutProps = Readonly<{
 function RootLayout(props: RootLayoutProps) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-primary-950 text-primary-100 min-h-screen">
         <header>
           <Logo />
         </header>
