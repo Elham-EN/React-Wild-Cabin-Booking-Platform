@@ -122,6 +122,7 @@ function Toggle({ id }: ToggleProps): React.ReactElement {
   const { openId, open, close, setPosition } = useMenusContext();
   // handle event for open or close the menu
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
     // Get information about the its position relative to the viewport
     const target = event.target as HTMLElement;
     const rect = target.closest("button")?.getBoundingClientRect();
@@ -154,7 +155,7 @@ interface ListProps {
 
 function List({ id, children }: ListProps): React.ReactElement | null {
   const { openId, position, close } = useMenusContext();
-  const ref = useOutsideClick<HTMLUListElement>(close);
+  const ref = useOutsideClick<HTMLUListElement>(close, false);
 
   if (openId !== id) return null;
 
