@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 // Server-side Rendered Component
 export default function Page(): React.ReactElement {
   return (
-    <h1 className="text-5xl text-center bg-amber-600 p-5 font-bold">
-      AccountPage
-    </h1>
+    <h2 className="font-semibold text-2xl text-accent-400 mb-7">
+      Welcome, Jonas
+    </h2>
   );
 }

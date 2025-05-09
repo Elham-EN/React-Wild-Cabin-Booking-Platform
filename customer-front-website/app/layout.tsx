@@ -34,8 +34,8 @@ function RootLayout(props: RootLayoutProps) {
           flex flex-col antialiased"
       >
         <Header />
-        <div className="flex-1 px-8 py-12">
-          <main className="max-w-7xl mx-auto">{props.children}</main>
+        <div className="flex-1 px-8 py-12 grid">
+          <main className="max-w-7xl mx-auto w-full">{props.children}</main>
         </div>
       </body>
     </html>
