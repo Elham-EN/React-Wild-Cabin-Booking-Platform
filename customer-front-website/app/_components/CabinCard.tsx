@@ -1,8 +1,8 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Cabin } from "@/app/_types/Cabin";
 import { UserIcon } from "@heroicons/react/24/solid";
-import Link from "next/link";
 
 interface CabinCardProps {
   cabin: Cabin;
@@ -11,13 +11,14 @@ interface CabinCardProps {
 function CabinCard({ cabin }: CabinCardProps): React.ReactElement {
   return (
     <div className="flex border border-primary-800">
-      <Image
-        src={cabin.image}
-        alt={cabin.name}
-        width={300}
-        height={300}
-        className="flex-1 border-r border-primary-800"
-      />
+      <div className="relative flex-1">
+        <Image
+          src={cabin.image}
+          alt={cabin.name}
+          fill
+          className="border-r border-primary-800"
+        />
+      </div>
       <div className="flex-grow">
         <div className="pt-5 pb-4 px-7 bg-primary-950">
           <h3 className="text-accent-500 font-semibold text-2xl mb-3">

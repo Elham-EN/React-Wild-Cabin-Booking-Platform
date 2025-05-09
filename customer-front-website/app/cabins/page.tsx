@@ -1,16 +1,15 @@
 import { Metadata } from "next";
-import React from "react";
-// import { Cabin } from "@/app/_types/Cabin";
+import React, { ReactElement } from "react";
 import CabinCard from "@/app/_components/CabinCard";
-import { dummyCabins } from "../_data/dummiesData";
+import { getCabins } from "@/app/_libs/api-service";
 
 export const metadata: Metadata = {
   title: "Cabins",
 };
 
 // Server-side Rendered Component
-export default function page(): React.ReactElement {
-  // const cabins: Cabin[] = [];
+export default async function Page(): Promise<ReactElement> {
+  const cabins = await getCabins();
   return (
     <div>
       <h1 className="text-4xl mb-5 text-accent-400 font-medium">
@@ -24,9 +23,9 @@ export default function page(): React.ReactElement {
         home away from home. The perfect spot for a peaceful, calm vacation.
         Welcome to paradise.
       </p>
-      {dummyCabins.length > 0 && (
-        <div>
-          {dummyCabins.map((cabin) => (
+      {cabins.length > 0 && (
+        <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-14">
+          {cabins.map((cabin) => (
             <CabinCard cabin={cabin} key={cabin.id} />
           ))}
         </div>
