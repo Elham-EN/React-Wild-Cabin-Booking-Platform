@@ -1,15 +1,14 @@
 import { Metadata } from "next";
-import React, { ReactElement } from "react";
-import CabinCard from "@/app/_components/CabinCard";
-import { getCabins } from "@/app/_libs/api-service";
+import React, { ReactElement, Suspense } from "react";
+import CabinList from "@/app/_components/CabinList";
+import Spinner from "../_components/Spinner";
 
 export const metadata: Metadata = {
   title: "Cabins",
 };
 
 // Server-side Rendered Component
-export default async function Page(): Promise<ReactElement> {
-  const cabins = await getCabins();
+export default function Page(): ReactElement {
   return (
     <div>
       <h1 className="text-4xl mb-5 text-accent-400 font-medium">
@@ -23,13 +22,9 @@ export default async function Page(): Promise<ReactElement> {
         home away from home. The perfect spot for a peaceful, calm vacation.
         Welcome to paradise.
       </p>
-      {cabins.length > 0 && (
-        <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-14">
-          {cabins.map((cabin) => (
-            <CabinCard cabin={cabin} key={cabin.id} />
-          ))}
-        </div>
-      )}
+      <Suspense fallback={<Spinner />}>
+        <CabinList />
+      </Suspense>
     </div>
   );
 }
