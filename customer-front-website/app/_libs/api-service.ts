@@ -24,7 +24,7 @@ export const getCabin = async (id: string): Promise<Cabin> => {
 
   if (error) {
     console.log(error);
-    throw new Error("Cabins could not be found");
+    throw new Error(`Cabin ${id} could not be found"`);
   }
   const cabinData = data as Cabin;
   return cabinData;
