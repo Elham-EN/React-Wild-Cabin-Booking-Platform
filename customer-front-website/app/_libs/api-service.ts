@@ -14,3 +14,18 @@ export const getCabins = async (): Promise<Cabin[]> => {
   const cabinsData = data as Cabin[];
   return cabinsData;
 };
+
+export const getCabin = async (id: string): Promise<Cabin> => {
+  const { data, error } = await supabase
+    .from("cabins")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.log(error);
+    throw new Error("Cabins could not be found");
+  }
+  const cabinData = data as Cabin;
+  return cabinData;
+};
