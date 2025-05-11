@@ -1,9 +1,20 @@
 import { getCabin } from "@/app/_libs/api-service";
 import React, { ReactElement } from "react";
 import Cabin from "@/app/_components/Cabin";
+import { Metadata } from "next";
 
 interface PageProps {
   params: Promise<{ cabinId: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { cabinId } = await params;
+  const { name } = await getCabin(cabinId);
+  return {
+    title: `Cabin ${name}`,
+  };
 }
 
 // Any page or layout is associated with a dynamic route segment
