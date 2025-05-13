@@ -1,4 +1,5 @@
 import { supabase } from "@/app/_libs/supabase";
+import { notFound } from "next/navigation";
 import { Cabin } from "@/app/_types/Cabin";
 
 export const getCabins = async (): Promise<Cabin[]> => {
@@ -24,7 +25,7 @@ export const getCabin = async (id: string): Promise<Cabin> => {
 
   if (error) {
     console.log(error);
-    throw new Error(`Cabin ${id} could not be found"`);
+    notFound();
   }
   const cabinData = data as Cabin;
   return cabinData;

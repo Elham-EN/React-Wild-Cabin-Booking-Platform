@@ -1,4 +1,4 @@
-import { getCabin } from "@/app/_libs/api-service";
+import { getCabin, getCabins } from "@/app/_libs/api-service";
 import React, { ReactElement } from "react";
 import Cabin from "@/app/_components/Cabin";
 import { Metadata } from "next";
@@ -15,6 +15,14 @@ export async function generateMetadata({
   return {
     title: `Cabin ${name}`,
   };
+}
+
+export async function generateStaticParams() {
+  const cabins = await getCabins();
+  const ids = cabins.map((cabin) => ({
+    cabinId: String(cabin.id),
+  }));
+  return ids;
 }
 
 // Any page or layout is associated with a dynamic route segment
