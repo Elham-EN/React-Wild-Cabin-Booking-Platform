@@ -3,6 +3,11 @@ import React, { ReactElement, Suspense } from "react";
 import CabinList from "@/app/_components/CabinList";
 import Spinner from "../_components/Spinner";
 
+// This will skip the Full Route Cache and the Data Cache. Meaning
+// components will be rendered and data fetched every 1 hr.
+// (This page rendered dynamically) (Route Level)
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Cabins",
 };
