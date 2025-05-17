@@ -1,7 +1,8 @@
 import { Metadata } from "next";
-import React, { ReactElement, Suspense } from "react";
+import React, { Key, ReactElement, Suspense } from "react";
 import CabinList from "@/app/_components/CabinList";
-import Spinner from "../_components/Spinner";
+import Spinner from "@/app/_components/Spinner";
+import Filter from "@/app/_components/Filter";
 
 // This will skip the Full Route Cache and the Data Cache. Meaning
 // components will be rendered and data fetched every 1 hr.
@@ -12,8 +13,17 @@ export const metadata: Metadata = {
   title: "Cabins",
 };
 
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
 // Server-side Rendered Component
-export default function Page(): ReactElement {
+async function Page({ searchParams }: PageProps): Promise<ReactElement> {
+  // Await the searchParams promise in next.js v15
+  const params = await searchParams;
+  // Get the capacity parameter with proper type handling
+  const filter = params?.capacity ?? "all";
+
   return (
     <div>
       <h1 className="text-4xl mb-5 text-accent-400 font-medium">
@@ -27,9 +37,18 @@ export default function Page(): ReactElement {
         home away from home. The perfect spot for a peaceful, calm vacation.
         Welcome to paradise.
       </p>
-      <Suspense fallback={<Spinner />}>
-        <CabinList />
+      <div className="flex justify-end mb-8">
+        <Filter />
+      </div>
+
+      {/* Fallback was not shown in the cabin list because all page navigation are 
+        wrapped in transition & suspense will not re-render the fallback. To fix
+        that we need to pass a key */}
+      <Suspense fallback={<Spinner />} key={filter as Key}>
+        <CabinList filter={filter} />
       </Suspense>
     </div>
   );
 }
+
+export default Page;
