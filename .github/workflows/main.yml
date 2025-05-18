@@ -1,0 +1,142 @@
+name: Full-Stack Application CI/CD Pipeline
+
+# Defines when the workflow runs
+on:
+  # Runs on pushes to the main branch
+  push:
+    branches: [ main ]
+  # Runs on any pull request
+  pull_request:
+    branches: [ '*' ]
+
+# Environment variables used across jobs
+env:
+  NODE_VERSION: 19 # Using Node 19 for React 19 compatibility
+
+# A workflow consists of one or more jobs
+jobs:
+  # Job to verify code quality and run tests for the customer-front-website
+  test-customer-website:
+    name: 🧪 Test Customer Website
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        # Set the working directory to the customer-front-website subfolder
+        working-directory: ./customer-front-website
+    
+    steps:
+      # Check out the repository code (this checks out the entire repo)
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # Set up Node.js environment
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: './customer-front-website/package-lock.json'
+      
+      # Install dependencies with legacy-peer-deps for React 19 compatibility
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      
+      # Run linting to check code quality
+      - name: Run linting
+        run: npm run lint
+        
+      # Run tests with Jest
+      - name: Run tests
+        run: npm test
+
+  # Job to build the customer website and verify it compiles successfully
+  build-customer-website:
+    name: 🏗️ Build Customer Website
+    runs-on: ubuntu-latest
+    # This job runs after test-customer-website completes successfully
+    needs: test-customer-website
+    defaults:
+      run:
+        # Set the working directory to the customer-front-website subfolder
+        working-directory: ./customer-front-website
+    
+    steps:
+      # Check out the repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # Set up Node.js environment
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: './customer-front-website/package-lock.json'
+      
+      # Install dependencies with legacy-peer-deps for React 19 compatibility
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      
+      # Build the Next.js application
+      - name: Build
+        run: npm run build
+
+  # Job for customer website storybook build
+  storybook-customer-website:
+    name: 📚 Customer Website Storybook
+    runs-on: ubuntu-latest
+    # This job runs after test-customer-website completes successfully
+    needs: test-customer-website
+    defaults:
+      run:
+        # Set the working directory to the customer-front-website subfolder
+        working-directory: ./customer-front-website
+    
+    steps:
+      # Check out the repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # Set up Node.js environment
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: './customer-front-website/package-lock.json'
+      
+      # Install dependencies with legacy-peer-deps for React 19 compatibility
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      
+      # Build Storybook
+      - name: Build Storybook
+        run: npm run build-storybook
+
+  # Add similar jobs for the other parts of your monorepo if needed
+  # For example: test-admin-dashboard, build-admin-dashboard, etc.
+  
+  # Example of how to add other project workflows
+  # Uncomment and customize as needed
+  
+  # test-admin-dashboard:
+  #   name: 🧪 Test Admin Dashboard
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ./admin-dashboard
+  #   steps:
+  #     # Similar steps as above but for the admin dashboard
+  
+  # Summary job to report success
+  success:
+    name: ✅ Pipeline Success
+    needs: [test-customer-website, build-customer-website, storybook-customer-website]
+    # Add other jobs to the needs array if you add more jobs
+    runs-on: ubuntu-latest
+    # This runs if all required jobs complete successfully
+    if: success()
+    
+    steps:
+      - name: Pipeline Summary
+        run: echo "🎉 CI/CD pipeline completed successfully!"
