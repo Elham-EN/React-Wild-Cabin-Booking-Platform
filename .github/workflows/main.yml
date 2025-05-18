@@ -2,43 +2,51 @@ name: Customer Website CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ '*' ]
+    branches: ["*"]
 
 jobs:
   build:
     name: 🏗️ Build
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.10.0
-          cache: 'npm'
-          cache-dependency-path: './customer-front-website/package-lock.json'
-      
+          cache: "npm"
+          cache-dependency-path: "./customer-front-website/package-lock.json"
+
       - name: Display Node.js and NPM versions
         run: |
           node -v
           npm -v
-      
+
       # Install dependencies with legacy-peer-deps
       - name: Install dependencies with legacy-peer-deps
         working-directory: ./customer-front-website
         run: npm install --legacy-peer-deps
-      
+
+      # Create a temporary .env.local file with mock Supabase credentials
+      - name: Create mock Supabase environment variables
+        run: |
+          cd customer-front-website
+          echo "NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co" > .env.local
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=mock-anon-key" >> .env.local
+          echo "Created mock Supabase environment variables for CI build"
+
       # Modify next.config.ts to disable image optimization
       - name: Disable image optimization
         run: |
           cd customer-front-website
           # Backup original config
           cp next.config.ts next.config.ts.bak
-          
+
           # Create a new config with unoptimized images
           cat > next.config.ts << 'EOL'
           import type { NextConfig } from "next";
@@ -64,7 +72,7 @@ jobs:
 
           export default nextConfig;
           EOL
-      
+
       # Create a temporary layout file without next/font
       - name: Create temp layout without next/font
         run: |
@@ -110,7 +118,7 @@ jobs:
 
           export default RootLayout;
           EOL
-      
+
       # Temporarily remove babel.config.js for the build
       - name: Remove babel config for build
         run: |
@@ -119,12 +127,12 @@ jobs:
             mv babel.config.js babel.config.js.bak
             echo "Backed up babel.config.js"
           fi
-      
+
       # Build Next.js with --no-lint flag to skip linting
       - name: Build Next.js application
         working-directory: ./customer-front-website
         run: npx next build --no-lint
-        
+
       # Restore original files after build
       - name: Restore original files
         run: |
