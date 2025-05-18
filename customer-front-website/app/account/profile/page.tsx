@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { Metadata } from "next";
+import SelectCountry from "@/app/_components/SelectCountry";
 
 export const metadata: Metadata = {
   title: "Update profile",
@@ -45,6 +46,11 @@ export default function Page(): React.ReactElement {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label htmlFor="nationality">Where are you from?</label>
+            <SelectCountry
+              name="nationality"
+              id="nationality"
+              defaultCountry={guest1.nationality}
+            />
             <Image
               src={guest1.countryFlag}
               alt="Country flag"
@@ -53,13 +59,6 @@ export default function Page(): React.ReactElement {
               height={100}
             />
           </div>
-
-          {/* <SelectCountry
-            name="nationality"
-            id="nationality"
-            className="px-5 py-3 bg-primary-200 text-primary-800 w-full shadow-sm rounded-sm"
-            defaultCountry={guest1.nationality}
-          /> */}
         </div>
 
         <div className="space-y-2">
