@@ -2,9 +2,9 @@ name: Customer Website CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: ["*"]
+    branches: [ '*' ]
 
 jobs:
   build:
@@ -13,28 +13,28 @@ jobs:
     env:
       NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
       NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock-key
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.10.0
-          cache: "npm"
-          cache-dependency-path: "./customer-front-website/package-lock.json"
-
+          cache: 'npm'
+          cache-dependency-path: './customer-front-website/package-lock.json'
+      
       - name: Display Node.js and NPM versions
         run: |
           node -v
           npm -v
-
+      
       # Install dependencies with legacy-peer-deps
       - name: Install dependencies with legacy-peer-deps
         working-directory: ./customer-front-website
         run: npm install --legacy-peer-deps
-
+      
       # Find and update the Supabase client file
       - name: Modify Supabase client for CI
         working-directory: ./customer-front-website
@@ -106,7 +106,7 @@ jobs:
             echo '    }' >> app/_libs/supabase.ts
             echo '  : createClient(supabaseUrl, supabaseAnonKey);' >> app/_libs/supabase.ts
           fi
-
+      
       # Modify next.config.ts to disable image optimization
       - name: Disable image optimization
         working-directory: ./customer-front-website
@@ -114,7 +114,7 @@ jobs:
         run: |
           # Backup original config
           cp next.config.ts next.config.ts.bak
-
+          
           # Create a new config with unoptimized images line by line
           echo 'import type { NextConfig } from "next";' > next.config.ts
           echo '' >> next.config.ts
@@ -147,7 +147,7 @@ jobs:
           echo '};' >> next.config.ts
           echo '' >> next.config.ts
           echo 'export default nextConfig;' >> next.config.ts
-
+      
       # Create a temporary layout file without next/font
       - name: Create temp layout without next/font
         working-directory: ./customer-front-website
@@ -155,7 +155,7 @@ jobs:
         run: |
           # Back up the original layout file
           cp app/layout.tsx app/layout.tsx.original
-
+          
           # Create a modified version without next/font
           echo 'import type { Metadata } from "next";' > app/layout.tsx
           echo 'import "./_styles/globals.css";' >> app/layout.tsx
@@ -193,7 +193,7 @@ jobs:
           echo '}' >> app/layout.tsx
           echo '' >> app/layout.tsx
           echo 'export default RootLayout;' >> app/layout.tsx
-
+      
       # Temporarily remove babel.config.js for the build
       - name: Remove babel config for build
         working-directory: ./customer-front-website
@@ -203,7 +203,7 @@ jobs:
             mv babel.config.js babel.config.js.bak
             echo "Backed up babel.config.js"
           fi
-
+      
       # Create mock API service module to bypass Supabase issues
       - name: Create mock API service
         working-directory: ./customer-front-website
@@ -211,7 +211,7 @@ jobs:
         run: |
           # Back up the original API service file
           cp app/_libs/api-service.ts app/_libs/api-service.ts.bak
-
+          
           # Create a mock API service file line by line
           echo '// Mock API Service for CI build' > app/_libs/api-service.ts
           echo 'import { Cabin } from "@/app/_types/Cabin";' >> app/_libs/api-service.ts
@@ -260,7 +260,7 @@ jobs:
           echo '    { name: { common: "Mock Country 2" }, flag: "🏴" }' >> app/_libs/api-service.ts
           echo '  ];' >> app/_libs/api-service.ts
           echo '};' >> app/_libs/api-service.ts
-
+      
       # Build Next.js with --no-lint flag to skip linting
       - name: Build Next.js application
         working-directory: ./customer-front-website
@@ -268,7 +268,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock-key
         run: npx next build --no-lint
-
+        
       # Restore original files after build
       - name: Restore original files
         working-directory: ./customer-front-website
