@@ -35,6 +35,22 @@ jobs:
         working-directory: ./customer-front-website
         run: npm install --legacy-peer-deps
 
+      # Check Cabin type definition
+      - name: Check Cabin type
+        working-directory: ./customer-front-website
+        shell: bash
+        run: |
+          echo "Checking Cabin type definition..."
+          grep -r "interface Cabin" --include="*.ts" app/ || echo "Interface not found"
+          grep -r "type Cabin" --include="*.ts" app/ || echo "Type not found"
+          # Create a backup of the Cabin type file if found
+          CABIN_TYPE_FILE=$(grep -r "interface Cabin" --include="*.ts" app/ | head -n 1 | cut -d: -f1 || grep -r "type Cabin" --include="*.ts" app/ | head -n 1 | cut -d: -f1)
+          if [ -n "$CABIN_TYPE_FILE" ]; then
+            echo "Found Cabin type definition at: $CABIN_TYPE_FILE"
+            cp "$CABIN_TYPE_FILE" "${CABIN_TYPE_FILE}.bak"
+            cat "$CABIN_TYPE_FILE"
+          fi
+
       # Find and update the Supabase client file
       - name: Modify Supabase client for CI
         working-directory: ./customer-front-website
@@ -212,7 +228,7 @@ jobs:
           # Back up the original API service file
           cp app/_libs/api-service.ts app/_libs/api-service.ts.bak
 
-          # Create a mock API service file line by line
+          # Create a mock API service file line by line with string IDs instead of numbers
           echo '// Mock API Service for CI build' > app/_libs/api-service.ts
           echo 'import { Cabin } from "@/app/_types/Cabin";' >> app/_libs/api-service.ts
           echo 'import { Country } from "@/app/_types/Country";' >> app/_libs/api-service.ts
@@ -221,7 +237,7 @@ jobs:
           echo '  // Return mock data for CI build' >> app/_libs/api-service.ts
           echo '  return [' >> app/_libs/api-service.ts
           echo '    {' >> app/_libs/api-service.ts
-          echo '      id: 1,' >> app/_libs/api-service.ts
+          echo '      id: "1",' >> app/_libs/api-service.ts
           echo '      name: "Mock Cabin 1",' >> app/_libs/api-service.ts
           echo '      maxCapacity: 4,' >> app/_libs/api-service.ts
           echo '      regularPrice: 100,' >> app/_libs/api-service.ts
@@ -229,7 +245,7 @@ jobs:
           echo '      image: "mock-image-1.jpg"' >> app/_libs/api-service.ts
           echo '    },' >> app/_libs/api-service.ts
           echo '    {' >> app/_libs/api-service.ts
-          echo '      id: 2,' >> app/_libs/api-service.ts
+          echo '      id: "2",' >> app/_libs/api-service.ts
           echo '      name: "Mock Cabin 2",' >> app/_libs/api-service.ts
           echo '      maxCapacity: 6,' >> app/_libs/api-service.ts
           echo '      regularPrice: 150,' >> app/_libs/api-service.ts
@@ -242,14 +258,13 @@ jobs:
           echo 'export const getCabin = async (id: string): Promise<Cabin> => {' >> app/_libs/api-service.ts
           echo '  // Return mock data for CI build' >> app/_libs/api-service.ts
           echo '  return {' >> app/_libs/api-service.ts
-          echo '    id: parseInt(id),' >> app/_libs/api-service.ts
+          echo '    id: id,' >> app/_libs/api-service.ts
           echo '    name: `Mock Cabin ${id}`,' >> app/_libs/api-service.ts
           echo '    maxCapacity: 4,' >> app/_libs/api-service.ts
           echo '    regularPrice: 100,' >> app/_libs/api-service.ts
           echo '    discount: 0,' >> app/_libs/api-service.ts
           echo '    image: "mock-image.jpg",' >> app/_libs/api-service.ts
-          echo '    description: "This is a mock cabin description for CI build.",' >> app/_libs/api-service.ts
-          echo '    // Add any other properties needed by your components' >> app/_libs/api-service.ts
+          echo '    description: "This is a mock cabin description for CI build."' >> app/_libs/api-service.ts
           echo '  };' >> app/_libs/api-service.ts
           echo '};' >> app/_libs/api-service.ts
           echo '' >> app/_libs/api-service.ts
@@ -295,8 +310,14 @@ jobs:
             echo "Restored api-service.ts"
           fi
           # Restore Supabase client
-          SUPABASE_FILE=$(find app/ -name "*.bak" | grep -v "api-service.ts.bak" | grep -v "layout.tsx.original" | head -n 1 | sed 's/\.bak$//')
+          SUPABASE_FILE=$(find app/ -name "*.bak" | grep -r -v "api-service.ts.bak" | grep -v "layout.tsx.original" | head -n 1 | sed 's/\.bak$//')
           if [ -n "$SUPABASE_FILE" ]; then
             mv "${SUPABASE_FILE}.bak" "$SUPABASE_FILE"
             echo "Restored Supabase client file"
+          fi
+          # Restore Cabin type file if backed up
+          CABIN_TYPE_FILE=$(find app/ -name "*.bak" | grep -v "api-service.ts.bak" | grep -v "layout.tsx.original" | grep -v "supabase" | head -n 1 | sed 's/\.bak$//')
+          if [ -n "$CABIN_TYPE_FILE" ]; then
+            mv "${CABIN_TYPE_FILE}.bak" "$CABIN_TYPE_FILE"
+            echo "Restored Cabin type file"
           fi
