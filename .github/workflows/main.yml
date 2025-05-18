@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20.10.0  # Explicitly use a newer version compatible with Sharp
+          node-version: 20.10.0
           cache: 'npm'
           cache-dependency-path: './customer-front-website/package-lock.json'
       
@@ -27,10 +27,43 @@ jobs:
           node -v
           npm -v
       
-      # Use --force to bypass dependency conflicts    
-      - name: Install dependencies with force
+      # Install dependencies with legacy-peer-deps
+      - name: Install dependencies with legacy-peer-deps
         working-directory: ./customer-front-website
-        run: npm install --force
+        run: npm install --legacy-peer-deps
+      
+      # Modify next.config.ts to disable image optimization
+      - name: Disable image optimization
+        run: |
+          cd customer-front-website
+          # Backup original config
+          cp next.config.ts next.config.ts.bak
+          
+          # Create a new config with unoptimized images
+          cat > next.config.ts << 'EOL'
+          import type { NextConfig } from "next";
+
+          const nextConfig: NextConfig = {
+            /* config options here */
+            allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev"],
+            images: {
+              unoptimized: true,
+              remotePatterns: [
+                {
+                  protocol: "https",
+                  hostname: "gayavyzkiqxzxfdicgjv.supabase.co",
+                  pathname: "/storage/v1/object/public/cabin-images/**",
+                },
+              ],
+            },
+            // For Next.js 15+
+            compiler: {
+              styledComponents: true,
+            },
+          };
+
+          export default nextConfig;
+          EOL
       
       # Create a temporary layout file without next/font
       - name: Create temp layout without next/font
@@ -87,12 +120,6 @@ jobs:
             echo "Backed up babel.config.js"
           fi
       
-      # Install sharp explicitly
-      - name: Install Sharp explicitly
-        run: |
-          cd customer-front-website
-          npm install --no-save sharp@latest
-      
       # Build Next.js with --no-lint flag to skip linting
       - name: Build Next.js application
         working-directory: ./customer-front-website
@@ -111,4 +138,9 @@ jobs:
           if [ -f babel.config.js.bak ]; then
             mv babel.config.js.bak babel.config.js
             echo "Restored babel.config.js"
+          fi
+          # Restore next config
+          if [ -f next.config.ts.bak ]; then
+            mv next.config.ts.bak next.config.ts
+            echo "Restored next.config.ts"
           fi
