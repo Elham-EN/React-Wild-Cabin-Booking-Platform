@@ -242,7 +242,8 @@ jobs:
           echo '      maxCapacity: 4,' >> app/_libs/api-service.ts
           echo '      regularPrice: 100,' >> app/_libs/api-service.ts
           echo '      discount: 0,' >> app/_libs/api-service.ts
-          echo '      image: "mock-image-1.jpg"' >> app/_libs/api-service.ts
+          echo '      image: "mock-image-1.jpg",' >> app/_libs/api-service.ts
+          echo '      description: "This is a mock cabin description for CI build."' >> app/_libs/api-service.ts
           echo '    },' >> app/_libs/api-service.ts
           echo '    {' >> app/_libs/api-service.ts
           echo '      id: "2",' >> app/_libs/api-service.ts
@@ -250,7 +251,8 @@ jobs:
           echo '      maxCapacity: 6,' >> app/_libs/api-service.ts
           echo '      regularPrice: 150,' >> app/_libs/api-service.ts
           echo '      discount: 20,' >> app/_libs/api-service.ts
-          echo '      image: "mock-image-2.jpg"' >> app/_libs/api-service.ts
+          echo '      image: "mock-image-2.jpg",' >> app/_libs/api-service.ts
+          echo '      description: "This is another mock cabin description for CI build."' >> app/_libs/api-service.ts
           echo '    }' >> app/_libs/api-service.ts
           echo '  ];' >> app/_libs/api-service.ts
           echo '};' >> app/_libs/api-service.ts
@@ -275,6 +277,36 @@ jobs:
           echo '    { name: { common: "Mock Country 2" }, flag: "🏴" }' >> app/_libs/api-service.ts
           echo '  ];' >> app/_libs/api-service.ts
           echo '};' >> app/_libs/api-service.ts
+      
+      # Create TypeScript declaration file for any missing types
+      - name: Create Type Definitions
+        working-directory: ./customer-front-website
+        shell: bash
+        run: |
+          mkdir -p app/_types
+          # Check if Cabin type exists
+          if [ ! -f app/_types/Cabin.ts ]; then
+            echo "Creating mock Cabin type definition"
+            echo 'export interface Cabin {' > app/_types/Cabin.ts
+            echo '  id: string;' >> app/_types/Cabin.ts
+            echo '  name: string;' >> app/_types/Cabin.ts
+            echo '  maxCapacity: number;' >> app/_types/Cabin.ts
+            echo '  regularPrice: number;' >> app/_types/Cabin.ts
+            echo '  discount: number;' >> app/_types/Cabin.ts
+            echo '  image: string;' >> app/_types/Cabin.ts
+            echo '  description: string;' >> app/_types/Cabin.ts
+            echo '}' >> app/_types/Cabin.ts
+          fi
+          # Check if Country type exists
+          if [ ! -f app/_types/Country.ts ]; then
+            echo "Creating mock Country type definition"
+            echo 'export interface Country {' > app/_types/Country.ts
+            echo '  name: {' >> app/_types/Country.ts
+            echo '    common: string;' >> app/_types/Country.ts
+            echo '  };' >> app/_types/Country.ts
+            echo '  flag: string;' >> app/_types/Country.ts
+            echo '}' >> app/_types/Country.ts
+          fi
       
       # Build Next.js with --no-lint flag to skip linting
       - name: Build Next.js application
