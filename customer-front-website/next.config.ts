@@ -12,6 +12,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Explicitly configure SWC to handle the conflict
+  swcMinify: true,
+  // For Next.js 13+, you need to specify compiler settings
+  compiler: {
+    // This disables SWC React optimization and adds the legacy code
+    // to handle font/image imports
+    styledComponents: true, // Enable if you're using styled-components
+  },
 };
 
 export default nextConfig;
