@@ -11,7 +11,7 @@ on:
 
 # Environment variables used across jobs
 env:
-  NODE_VERSION: 19 # Using Node 19 for React 19 compatibility
+  NODE_VERSION: 20 # Changed to Node 20 for Sharp compatibility
 
 # A workflow consists of one or more jobs
 jobs:
@@ -77,13 +77,26 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
         
-      # Install sharp package specifically for image processing
-      - name: Install sharp for image processing
-        run: npm install --cpu=wasm32 sharp
+      # Handle Next.js font conflict with custom babel config
+      - name: Fix Next.js font and Babel conflict
+        run: |
+          echo "Removing custom babel config to enable SWC and next/font support"
+          if [ -f babel.config.js ]; then
+            mv babel.config.js babel.config.js.bak
+            echo "Backed up babel.config.js to babel.config.js.bak"
+          fi
       
       # Build the Next.js application
       - name: Build
         run: npm run build
+        
+      # Restore the Babel config if needed
+      - name: Restore Babel config
+        run: |
+          if [ -f babel.config.js.bak ]; then
+            mv babel.config.js.bak babel.config.js
+            echo "Restored babel.config.js"
+          fi
 
   # Job for customer website storybook build
   storybook-customer-website:
@@ -117,21 +130,6 @@ jobs:
       - name: Build Storybook
         run: npm run build-storybook
 
-  # Add similar jobs for the other parts of your monorepo if needed
-  # For example: test-admin-dashboard, build-admin-dashboard, etc.
-  
-  # Example of how to add other project workflows
-  # Uncomment and customize as needed
-  
-  # test-admin-dashboard:
-  #   name: 🧪 Test Admin Dashboard
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: ./admin-dashboard
-  #   steps:
-  #     # Similar steps as above but for the admin dashboard
-  
   # Summary job to report success
   success:
     name: ✅ Pipeline Success

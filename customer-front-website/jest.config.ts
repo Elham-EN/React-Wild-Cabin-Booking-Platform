@@ -26,9 +26,14 @@ const config: Config = {
     '!**/*.d.ts',
     '!**/node_modules/**',
   ],
-  // Use babel-jest for transforming files
+  // Use babel-jest for transforming files with a Jest-specific babel config
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: './jest-babel.config.js' }]
+  },
+  // Mock modules that cause issues
+  moduleNameMapper: {
+    // Mock next/font to avoid conflicts with Babel
+    'next/font/(.*)': '<rootDir>/__mocks__/nextFontMock.js'
   },
 };
 
