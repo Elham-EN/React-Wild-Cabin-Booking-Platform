@@ -7,7 +7,7 @@ interface SelectCountryProps {
   id: string;
 }
 
-export default async function SelectCountry({
+export async function SelectCountry({
   defaultCountry,
   name,
   id,
@@ -35,7 +35,7 @@ export default async function SelectCountry({
         return (
           <option
             key={country.name.common}
-            value={`${country.name.common}}%${country.flag}`}
+            value={`${country.name.common}%${country.flag}`}
           >
             {country.flag} {country.name.common}
           </option>
@@ -44,3 +44,5 @@ export default async function SelectCountry({
     </select>
   );
 }
+
+export default SelectCountry;

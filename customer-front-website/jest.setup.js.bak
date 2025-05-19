@@ -1,0 +1,18 @@
+// Add any global setup for testing here
+import '@testing-library/jest-dom';
+
+// Mock Next.js modules
+jest.mock('next/navigation', () => ({
+  notFound: jest.fn(),
+}));
+
+// Mock Supabase client
+jest.mock('@/app/_libs/supabase', () => ({
+  supabase: {
+    from: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    single: jest.fn().mockReturnThis(),
+    order: jest.fn().mockReturnThis(),
+  },
+}));

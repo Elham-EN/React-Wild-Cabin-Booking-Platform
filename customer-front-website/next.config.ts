@@ -12,11 +12,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // For Next.js 15+, use compiler options but not swcMinify
-  compiler: {
-    // This helps with styling libraries if you use them
-    styledComponents: true,
-  },
 };
 
 export default nextConfig;
