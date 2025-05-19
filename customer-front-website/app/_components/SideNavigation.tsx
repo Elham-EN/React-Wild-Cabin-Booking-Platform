@@ -27,20 +27,30 @@ const navLinks = [
   },
 ];
 
-function SideNavigation(): React.ReactElement {
+interface SideNavigationProps {
+  onNavItemClick?: () => void;
+}
+
+/**
+ * Side navigation component for the account section
+ * Responsive design with proper mobile support
+ */
+function SideNavigation({ onNavItemClick }: SideNavigationProps): React.ReactElement {
   const pathname = usePathname();
+  
   return (
-    <nav className="border-r border-primary-400">
-      <ul className="flex flex-col gap-2 h-full text-lg">
+    <nav className="border-r border-primary-400 w-64 md:w-auto h-full">
+      <ul className="flex flex-col gap-2 h-full text-base md:text-lg p-4 pt-20 md:p-0">
         {navLinks.map((link) => (
           <li key={link.name}>
             <Link
               className={`py-3 px-5 hover:bg-primary-900 hover:text-primary-100 
-                transition-colors flex items-center gap-4 font-semibold 
-              text-primary-200 ${
+                transition-colors flex items-center gap-4 font-semibold rounded-sm md:rounded-none
+                text-primary-200 ${
                 pathname === link.href ? "bg-primary-900" : ""
               }`}
               href={link.href}
+              onClick={onNavItemClick}
             >
               {link.icon}
               <span>{link.name}</span>
@@ -48,7 +58,7 @@ function SideNavigation(): React.ReactElement {
           </li>
         ))}
         <li className="mt-auto">
-          <SignOutButton />
+          <SignOutButton onClick={onNavItemClick} />
         </li>
       </ul>
     </nav>
