@@ -2,7 +2,36 @@
 
 ![Next.js CI/CD Pipeline](https://github.com/[your-github-username]/[your-repo-name]/actions/workflows/main.yml/badge.svg)
 
-A modern, responsive customer-facing website for The Wild Oasis hotel, built with Next.js 15, React 19, TypeScript, and Tailwind CSS.
+**The Wild Oasis** is a luxurious cabin hotel booking platform located in the heart of the Italian Dolomites, surrounded by beautiful mountains and dark forests. This customer-facing website allows guests to browse available cabins, make reservations, and manage their bookings through an elegant, modern interface.
+
+## 🏨 About The Wild Oasis
+
+The Wild Oasis offers premium cabin accommodations in one of the most breathtaking locations in the Italian Alps. Our platform provides:
+
+- **Cabin Browsing**: Explore our collection of luxury cabins with detailed descriptions, amenities, and photo galleries
+- **Reservation System**: Interactive date picker for selecting check-in and check-out dates
+- **Account Management**: User authentication and booking history
+- **Responsive Design**: Seamless experience across desktop, tablet, and mobile devices
+
+## ✨ Key Features
+
+### 🗓️ Reservation System
+- Interactive date range picker for selecting stay dates
+- Real-time availability checking
+- Context-based state management for reservation flow
+- Seamless booking experience
+
+### 🏠 Cabin Management
+- Detailed cabin listings with high-quality imagery
+- Cabin amenities and specifications
+- Pricing information and availability
+- Filter and search functionality
+
+### 👤 User Experience
+- Clean, modern interface built with Tailwind CSS
+- Fast loading times with Next.js optimizations
+- Accessibility-first design principles
+- Mobile-responsive layouts
 
 ## 🚀 Technologies
 
@@ -97,7 +126,10 @@ customer-front-website/
 ├── .vscode/               # VS Code configuration
 ├── app/                   # Next.js application code
 │   ├── _components/       # Shared UI components
-│   ├── _libs/             # Utility libraries
+│   ├── _libs/             # Utility libraries and contexts
+│   │   └── contexts/      # React Context providers
+│   │       ├── ReservationContext.tsx  # Date range state management
+│   │       └── index.ts   # Context exports
 │   ├── _styles/           # Global styles
 │   ├── _types/            # TypeScript type definitions
 │   ├── about/             # About page
@@ -114,6 +146,15 @@ customer-front-website/
 ├── README.md              # Project documentation
 └── tsconfig.json          # TypeScript configuration
 ```
+
+### State Management
+
+The application uses React Context for managing global state:
+
+- **ReservationContext**: Manages date range selection for cabin bookings
+  - Provides `range`, `setRange`, and `resetRange` functions
+  - Fully typed with TypeScript interfaces
+  - Available throughout the application via the `useReservation` hook
 
 ## 🚢 Deployment
 

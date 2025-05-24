@@ -1,7 +1,9 @@
+import "react-day-picker/style.css";
 import type { Metadata } from "next";
 import { Josefin_Sans } from "next/font/google";
 import "./_styles/globals.css";
 import Header from "@/app/_components/Header";
+import { ReservationProvider } from "@/app/_libs/contexts";
 
 const josefin = Josefin_Sans({
   subsets: ["latin"],
@@ -35,7 +37,9 @@ function RootLayout(props: RootLayoutProps) {
       >
         <Header />
         <div className="flex-1 px-8 py-12 grid">
-          <main className="max-w-7xl mx-auto w-full">{props.children}</main>
+          <main className="max-w-7xl mx-auto w-full">
+            <ReservationProvider>{props.children}</ReservationProvider>
+          </main>
         </div>
       </body>
     </html>

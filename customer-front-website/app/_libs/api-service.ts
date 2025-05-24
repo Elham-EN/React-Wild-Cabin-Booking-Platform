@@ -9,6 +9,9 @@ import { supabase } from "@/app/_libs/supabase";
 import { notFound } from "next/navigation";
 import { Cabin } from "@/app/_types/Cabin";
 import { Country } from "@/app/_types/Country";
+import { Setting } from "@/app/_types/Setting";
+import { Booking } from "../_types/Booking";
+import { eachDayOfInterval } from "date-fns";
 
 /**
  * Fetches all cabins from the database
@@ -79,7 +82,6 @@ export const getCabin = async (id: string): Promise<Cabin> => {
  * Details:
  * - Uses the REST Countries API (https://restcountries.com)
  * - Requests only necessary fields (name, flag) to minimize payload size
- * - Uses native fetch API with proper error handling
  * - Results are typed as Country[] for type safety
  */
 export const getCountries = async (): Promise<Country[]> => {
@@ -96,4 +98,57 @@ export const getCountries = async (): Promise<Country[]> => {
     // Provide a user-friendly error message if the fetch fails
     throw new Error("Could not fetch countries");
   }
+};
+
+/**
+ * Fetch settings from the database
+ *
+ */
+export const getSettings = async (): Promise<Setting> => {
+  const { data, error } = await supabase.from("settings").select("*").single();
+  if (error) {
+    console.log(error);
+    throw new Error("Settings could not be loaded");
+  }
+  const settingsData = data as Setting;
+  return settingsData;
+};
+
+/**
+ * Fetch list of dates booked on that cabin for that time period
+ *
+ */
+export const getBookedDatesByCabinId = async (
+  cabinId: string
+): Promise<Date[]> => {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  const strToday = today.toISOString();
+
+  // Get all bookings
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("cabinId", cabinId)
+    .or(`startDate.gte.${strToday},status.eq.checked-in`);
+
+  if (error) {
+    console.log(error);
+    throw new Error("bookings could not be loaded");
+  }
+
+  const bookings = data as Booking[];
+
+  // Converting to actual datas to be displaed in the date picker
+  const bookedDates = bookings
+    .map((booking) => {
+      // generates an array of all dates within a given time period
+      return eachDayOfInterval({
+        start: new Date(booking.startDate),
+        end: new Date(booking.endDate),
+      });
+    })
+    .flat(); // "flattens" this into one single array:
+
+  return bookedDates;
 };

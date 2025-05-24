@@ -1,3 +1,4 @@
+"use client";
 import React, { ReactElement } from "react";
 import Image from "next/image";
 import { EyeSlashIcon, MapPinIcon, UsersIcon } from "@heroicons/react/24/solid";

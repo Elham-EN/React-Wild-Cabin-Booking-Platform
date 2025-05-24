@@ -56,9 +56,29 @@
 
   /* For date picker */
   .rdp {
-    --rdp-cell-size: 32px !important;
+    --rdp-cell-size: 40px !important;
     --rdp-accent-color: var(--color-accent-500) !important;
-    --rdp-background-color: var(--color-accent-600) !important;
+    --rdp-background-color: var(--color-accent-100) !important;
     margin: 0 !important;
+  }
+  
+  .rdp-day_selected, .rdp-day_selected:focus-visible, .rdp-day_selected:hover {
+    background-color: var(--rdp-accent-color) !important;
+    color: white !important;
+  }
+  
+  .rdp-day_range_middle {
+    background-color: var(--rdp-background-color) !important;
+  }
+  
+  .rdp-day_range_start, .rdp-day_range_end {
+    border-radius: 100% !important;
+  }
+  
+  @media (max-width: 768px) {
+    .rdp {
+      --rdp-cell-size: 35px !important;
+      font-size: 0.9rem !important;
+    }
   }
 }
