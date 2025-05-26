@@ -2,12 +2,17 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+
+interface NavigationProps {
+  image: string | null | undefined;
+}
 
 /**
  * Navigation component that displays the main site navigation links.
  * Responsive design with a hamburger menu on mobile and horizontal links on desktop.
  */
-export default function Navigation(): React.ReactElement {
+function Navigation({ image }: NavigationProps): React.ReactElement {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -17,15 +22,31 @@ export default function Navigation(): React.ReactElement {
   return (
     <nav className="z-10 text-xl relative">
       {/* Mobile hamburger button - only visible on small screens */}
-      <button 
-        className="md:hidden flex flex-col justify-center items-center gap-1.5 p-2 focus:outline-none"
+      <button
+        className="md:hidden flex flex-col justify-center items-center gap-1.5 
+          p-2 focus:outline-none"
         onClick={toggleMenu}
         aria-expanded={isMenuOpen}
         aria-label="Toggle navigation menu"
       >
-        <span className={`block w-6 h-0.5 bg-current transition-transform duration-200 ease-in-out ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
-        <span className={`block w-6 h-0.5 bg-current transition-opacity duration-200 ease-in-out ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-        <span className={`block w-6 h-0.5 bg-current transition-transform duration-200 ease-in-out ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+        <span
+          className={`block w-6 h-0.5 bg-current transition-transform 
+            duration-200 ease-in-out ${
+              isMenuOpen ? "rotate-45 translate-y-2" : ""
+            }`}
+        ></span>
+        <span
+          className={`block w-6 h-0.5 bg-current transition-opacity 
+            duration-200 ease-in-out ${
+              isMenuOpen ? "opacity-0" : "opacity-100"
+            }`}
+        ></span>
+        <span
+          className={`block w-6 h-0.5 bg-current transition-transform 
+            duration-200 ease-in-out ${
+              isMenuOpen ? "-rotate-45 -translate-y-2" : ""
+            }`}
+        ></span>
       </button>
 
       {/* 
@@ -50,12 +71,29 @@ export default function Navigation(): React.ReactElement {
           </Link>
         </li>
         <li>
-          <Link
-            href={"/account"}
-            className="hover:text-accent-400 transition-colors"
-          >
-            Guest Area
-          </Link>
+          {image ? (
+            <Link
+              href={"/account"}
+              className="hover:text-accent-400 transition-colors flex items-center gap-4"
+            >
+              <Image
+                src={image}
+                referrerPolicy="no-referrer"
+                alt="user avatar"
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
+              <span>Guest Area</span>
+            </Link>
+          ) : (
+            <Link
+              href={"/account"}
+              className="hover:text-accent-400 transition-colors"
+            >
+              Guest Area
+            </Link>
+          )}
         </li>
       </ul>
 
@@ -64,22 +102,27 @@ export default function Navigation(): React.ReactElement {
         Fixed position that slides in from the right on mobile
         Hidden on desktop screens
       */}
-      <ul 
+      <ul
         className={`
-          md:hidden fixed top-0 right-0 flex flex-col gap-6 bg-primary-950 p-12 pt-24 h-screen w-64 shadow-xl 
-          transition-all duration-300 ease-in-out z-20
-          ${isMenuOpen ? 'translate-x-0 opacity-100 pointer-events-auto' : 'translate-x-full opacity-0 pointer-events-none'}
+          md:hidden fixed top-0 right-0 flex flex-col gap-6 bg-primary-950 
+          p-12 pt-24 h-screen w-64 shadow-xl transition-all duration-300 
+          ease-in-out z-20
+          ${
+            isMenuOpen
+              ? "translate-x-0 opacity-100 pointer-events-auto"
+              : "translate-x-full opacity-0 pointer-events-none"
+          }
         `}
       >
         {/* Close button for mobile menu - positioned at the top right */}
-        <button 
+        <button
           className="absolute top-6 right-6 text-2xl p-2"
           onClick={toggleMenu}
           aria-label="Close navigation menu"
         >
           ✕
         </button>
-        
+
         <li>
           <Link
             href={"/cabins"}
@@ -111,7 +154,7 @@ export default function Navigation(): React.ReactElement {
 
       {/* Overlay that appears behind the mobile menu */}
       {isMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"
           onClick={toggleMenu}
           aria-hidden="true"
@@ -120,3 +163,5 @@ export default function Navigation(): React.ReactElement {
     </nav>
   );
 }
+
+export default Navigation;
