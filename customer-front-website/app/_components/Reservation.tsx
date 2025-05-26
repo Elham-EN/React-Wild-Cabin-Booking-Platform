@@ -3,6 +3,8 @@ import DateSelector from "./DateSelector";
 import ReservationForm from "./ReservationForm";
 import { getBookedDatesByCabinId, getSettings } from "../_libs/api-service";
 import { Cabin } from "../_types/Cabin";
+import { auth } from "../_libs/auth";
+import LoginMessage from "./LoginMessage";
 
 interface ReservationProps {
   cabin: Cabin;
@@ -17,6 +19,8 @@ export default async function Reservation({
     getBookedDatesByCabinId(cabin.id),
   ]);
 
+  const session = await auth();
+
   return (
     <div
       className="rounded-lg overflow-hidden shadow-xl border border-primary-800 
@@ -28,7 +32,7 @@ export default async function Reservation({
           bookedDates={bookedDates}
           cabin={cabin}
         />
-        <ReservationForm cabin={cabin} />
+        {session?.user ? <ReservationForm cabin={cabin} /> : <LoginMessage />}
       </div>
     </div>
   );
