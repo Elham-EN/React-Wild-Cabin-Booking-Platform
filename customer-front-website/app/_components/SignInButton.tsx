@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import { signInAction } from "../_libs/action";
+import { signInAction } from "../_libs/actions";
 
 function SignInButton(): React.ReactElement {
   return (
