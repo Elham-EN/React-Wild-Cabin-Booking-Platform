@@ -5,6 +5,7 @@ import { DayPicker, DateRange } from "react-day-picker";
 import { isWithinInterval } from "date-fns";
 import { Setting } from "../_types/Setting";
 import { Cabin } from "../_types/Cabin";
+import { useReservation } from "../_libs/contexts";
 
 function isAlreadyBooked(range: DateRange, datesArr: Date[]): boolean {
   if (!range?.from || !range?.to || datesArr.length === 0) {
@@ -26,29 +27,9 @@ export default function DateSelector({
   bookedDates,
   cabin,
 }: DateSelectorProps): React.ReactElement {
-  const [range, setRange] = useState<DateRange | undefined>();
+  const { range, setRange, resetRange } = useReservation();
+  // const [range, setRange] = useState<DateRange | undefined>();
   const [isMobile, setIsMobile] = useState<boolean>(false);
-
-  // Format the date range for display
-  const formatDateRange = () => {
-    if (!range?.from) return "Select dates first";
-
-    const fromDate = range.from.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-
-    const toDate = range.to
-      ? range.to.toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        })
-      : "...";
-
-    return `${fromDate} to ${toDate}`;
-  };
 
   // Detect screen size for responsive calendar
   useEffect(() => {
@@ -67,8 +48,10 @@ export default function DateSelector({
   }, []);
 
   // Handle date selection
-  const handleSelect = (range: DateRange | undefined) => {
-    setRange(range);
+  const handleSelect = (rangeArg: DateRange | undefined) => {
+    if (rangeArg?.from) {
+      setRange({ from: rangeArg.from, to: rangeArg.to });
+    }
   };
 
   return (
@@ -77,49 +60,46 @@ export default function DateSelector({
         bg-primary-800 rounded-t-lg md:rounded-t-none md:rounded-l-lg 
           shadow-inner h-full"
     >
-      <div
-        className="bg-primary-800 text-primary-300 px-4 md:px-8 py-4 flex flex-col 
-            sm:flex-row justify-between items-center w-full"
-      >
-        <p className="text-sm sm:text-base font-medium">
-          <span className="opacity-75 mr-1">Booking for:</span>
-          <span>Guest</span>
-        </p>
-        <p className="text-sm sm:text-base font-medium mt-2 sm:mt-0">
-          <span className="opacity-75 mr-1">Dates:</span>
-          <span>{formatDateRange()}</span>
-        </p>
-      </div>
-      <h2 className="text-xl font-semibold mb-4 text-primary-800">
+      <h2 className="text-xl font-semibold mb-4 text-primary-100">
         Select Your Dates
       </h2>
       <DayPicker
         className="rdp custom-day-picker"
         mode="range"
-        min={settings.minBookingLength + 1}
+        min={settings.minBookingLength}
         max={settings.maxBookingLength}
         selected={range}
         onSelect={handleSelect}
         captionLayout="dropdown"
         numberOfMonths={isMobile ? 1 : 2}
         startMonth={new Date()}
-        hidden={new Date(new Date().setMonth(new Date().getMonth() + 6))}
+        endMonth={new Date(new Date().setMonth(new Date().getMonth() + 3))}
         modifiersClassNames={{
           selected: "bg-primary-800 text-black",
-          today: "bg-accent-100 font-bold text-accent-800",
+          today: "bg-accent-800 font-bold text-accent-100 rounded-4xl",
         }}
       />
+
       {range?.from && (
-        <p className="mt-4 text-primary-800 text-sm">
-          {range.to ? (
-            <>
-              Selected: {range.from.toLocaleDateString()} to{" "}
-              {range.to.toLocaleDateString()}
-            </>
-          ) : (
-            <>Select end date</>
-          )}
-        </p>
+        <div className="flex justify-around items-center w-full">
+          <p className="text-primary-100 text-sm">
+            {range.to ? (
+              <>
+                Selected: {range.from.toLocaleDateString()} to{" "}
+                {range.to.toLocaleDateString()}
+              </>
+            ) : (
+              <>Select end date</>
+            )}
+          </p>
+          <button
+            onClick={resetRange}
+            className="border border-accent-500 py-1 px-2 rounded-lg 
+          hover:bg-accent-500 cursor-pointer text-sm sm:text-[16px]"
+          >
+            Clear
+          </button>
+        </div>
       )}
     </div>
   );

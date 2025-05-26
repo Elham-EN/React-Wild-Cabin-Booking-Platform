@@ -2,6 +2,7 @@
 
 import React, { useState, FormEvent, ReactElement } from "react";
 import { Cabin } from "../_types/Cabin";
+import { useReservation } from "../_libs/contexts";
 
 interface ReservationFormProps {
   cabin: Cabin;
@@ -11,6 +12,28 @@ function ReservationForm({ cabin }: ReservationFormProps): ReactElement {
   const [numGuests, setNumGuests] = useState<string>("");
   const [observations, setObservations] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { range } = useReservation();
+
+  // Format the date range for display
+  const formatDateRange = (): string => {
+    if (!range?.from) return "Select dates first";
+
+    const fromDate = range.from.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+
+    const toDate = range.to
+      ? range.to.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+      : "...";
+
+    return `${fromDate} to ${toDate}`;
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -39,6 +62,19 @@ function ReservationForm({ cabin }: ReservationFormProps): ReactElement {
 
   return (
     <div className="h-full rounded-r-lg overflow-hidden">
+      <div
+        className="bg-primary-800 text-primary-300 px-4 md:px-8 py-4 flex flex-col 
+            sm:flex-row justify-between items-center w-full"
+      >
+        <p className="text-sm sm:text-base font-medium">
+          <span className="opacity-75 mr-1">Booking for:</span>
+          <span>Guest</span>
+        </p>
+        <p className="text-sm sm:text-base font-medium mt-2 sm:mt-0">
+          <span className="opacity-75 mr-1">Dates:</span>
+          <span>{formatDateRange()}</span>
+        </p>
+      </div>
       <form
         onSubmit={handleSubmit}
         className="bg-primary-800 py-8 px-4 md:px-8 text-lg flex gap-6 flex-col"

@@ -2,10 +2,10 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
 // Define the shape of our date range
-interface DateRange {
+type DateRange = {
   from: Date | undefined;
-  to: Date | undefined;
-}
+  to?: Date | undefined;
+};
 
 // Define the context value type
 interface ReservationContextType {
