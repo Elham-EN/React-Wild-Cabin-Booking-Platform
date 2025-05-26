@@ -1,6 +1,6 @@
 /**
  * Cabins Page Component
- * 
+ *
  * This is the main page for displaying all available cabins with filtering capability.
  * Implements server-side rendering with dynamic data revalidation and suspense for loading states.
  */
@@ -10,10 +10,11 @@ import React, { Key, ReactElement, Suspense } from "react";
 import CabinList from "@/app/_components/CabinList";
 import Spinner from "@/app/_components/Spinner";
 import Filter from "@/app/_components/Filter";
+import ReservationReminder from "../_components/ReservationReminder";
 
 /**
  * Revalidation Configuration
- * 
+ *
  * Setting revalidate to 3600 seconds (1 hour) ensures:
  * - The page is rendered dynamically (Server-Side Rendering)
  * - The Full Route Cache and Data Cache are bypassed
@@ -23,7 +24,7 @@ export const revalidate = 3600;
 
 /**
  * Page Metadata
- * 
+ *
  * Defines the page title for SEO and browser tabs
  */
 export const metadata: Metadata = {
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
 
 /**
  * Props Interface for the Page Component
- * 
+ *
  * @property {Promise<Object>} searchParams - URL query parameters passed to the page
  * In Next.js 15, searchParams is a Promise that needs to be awaited
  */
@@ -42,20 +43,20 @@ interface PageProps {
 
 /**
  * Server-side Rendered Page Component for Cabins Listing
- * 
+ *
  * This component:
  * - Processes URL query parameters for filtering
  * - Displays descriptive content about the cabins
  * - Renders a filter component for user interaction
  * - Implements Suspense for graceful loading states during data fetching
- * 
+ *
  * @param {PageProps} props - Component props containing searchParams
  * @returns {Promise<ReactElement>} The rendered page content
  */
 async function Page({ searchParams }: PageProps): Promise<ReactElement> {
   // Await the searchParams promise - Next.js v15 specific pattern
   const params = await searchParams;
-  
+
   // Extract and normalize the capacity filter parameter
   // Default to "all" if no capacity filter is specified
   const filter = params?.capacity ?? "all";
@@ -91,6 +92,7 @@ async function Page({ searchParams }: PageProps): Promise<ReactElement> {
       */}
       <Suspense fallback={<Spinner />} key={filter as Key}>
         <CabinList filter={filter} />
+        <ReservationReminder />
       </Suspense>
     </div>
   );
