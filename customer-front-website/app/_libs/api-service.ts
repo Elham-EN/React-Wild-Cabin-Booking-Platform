@@ -12,6 +12,7 @@ import { Country } from "@/app/_types/Country";
 import { Setting } from "@/app/_types/Setting";
 import { Booking } from "../_types/Booking";
 import { eachDayOfInterval } from "date-fns";
+import { CreateGuest, Guest } from "../_types/Guest";
 
 /**
  * Fetches all cabins from the database
@@ -151,4 +152,30 @@ export const getBookedDatesByCabinId = async (
     .flat(); // "flattens" this into one single array:
 
   return bookedDates;
+};
+
+export const getGuest = async (email: string): Promise<Guest> => {
+  const { data } = await supabase
+    .from("guests")
+    .select("*")
+    .eq("email", email)
+    .single();
+
+  // No error here. We handle the possibility of no guest
+  // in the sign in callback
+  const guestData = data as Guest;
+  return guestData;
+};
+
+export const createGuest = async (newGuest: CreateGuest) => {
+  const { data, error } = await supabase
+    .from("guests")
+    .insert([newGuest])
+    .select("*");
+  if (error) {
+    console.error(error);
+    throw new Error("Guest could not be created");
+  }
+  const guestData = data as unknown as Guest;
+  return guestData;
 };

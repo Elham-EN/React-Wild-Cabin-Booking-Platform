@@ -21,10 +21,11 @@ export default function Page(): React.ReactElement {
       {dummyBookings.length === 0 ? (
         <div className="bg-primary-950 p-6 rounded-sm">
           <p className="text-base sm:text-lg mb-4">
-            You have no reservations yet. Check out our luxury cabins to book your next getaway.
+            You have no reservations yet. Check out our luxury cabins to book
+            your next getaway.
           </p>
-          <Link 
-            className="inline-block bg-accent-500 text-primary-800 font-semibold px-4 py-2 rounded-sm hover:bg-accent-600 transition-colors" 
+          <Link
+            className="inline-block bg-accent-500 text-primary-800 font-semibold px-4 py-2 rounded-sm hover:bg-accent-600 transition-colors"
             href="/cabins"
           >
             Explore cabins &rarr;
