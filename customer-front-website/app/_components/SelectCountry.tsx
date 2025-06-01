@@ -35,7 +35,7 @@ export async function SelectCountry({
         return (
           <option
             key={country.name.common}
-            value={`${country.name.common}%${country.flag}`}
+            value={`${country.name.common}%${country.flags.png}`}
           >
             {country.flag} {country.name.common}
           </option>

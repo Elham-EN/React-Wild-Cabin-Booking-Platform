@@ -12,7 +12,7 @@ import { Country } from "@/app/_types/Country";
 import { Setting } from "@/app/_types/Setting";
 import { Booking } from "../_types/Booking";
 import { eachDayOfInterval } from "date-fns";
-import { CreateGuest, Guest } from "../_types/Guest";
+import { CreateGuest, Guest, UpdatedGuest } from "../_types/Guest";
 
 /**
  * Fetches all cabins from the database
@@ -89,7 +89,7 @@ export const getCountries = async (): Promise<Country[]> => {
   try {
     // Make a GET request to the REST Countries API, requesting only needed fields
     const res = await fetch(
-      `https://restcountries.com/v3.1/all?fields=name,flag,`
+      `https://restcountries.com/v3.1/all?fields=name,flag,flags,`
     );
 
     // Parse JSON response and cast to Country type
@@ -177,5 +177,20 @@ export const createGuest = async (newGuest: CreateGuest) => {
     throw new Error("Guest could not be created");
   }
   const guestData = data as unknown as Guest;
+  return guestData;
+};
+
+export const updateGuest = async (id: string, updatedGuest: UpdatedGuest) => {
+  const { data, error } = await supabase
+    .from("guests")
+    .update(updatedGuest)
+    .eq("id", id)
+    .select("*")
+    .single();
+  if (error) {
+    console.error(error);
+    throw new Error("Guest could not be updated");
+  }
+  const guestData = data as Guest;
   return guestData;
 };

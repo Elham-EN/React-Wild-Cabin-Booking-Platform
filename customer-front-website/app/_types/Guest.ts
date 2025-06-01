@@ -11,3 +11,9 @@ export interface CreateGuest {
   fullName: string;
   email: string;
 }
+
+export interface UpdatedGuest {
+  nationality: string;
+  nationalID: string;
+  countryFlag: string;
+}
