@@ -12,7 +12,7 @@ import { Country } from "@/app/_types/Country";
 import { Setting } from "@/app/_types/Setting";
 import { Booking } from "../_types/Booking";
 import { eachDayOfInterval } from "date-fns";
-import { CreateGuest, Guest, UpdatedGuest } from "../_types/Guest";
+import { CreateGuest, Guest } from "../_types/Guest";
 
 /**
  * Fetches all cabins from the database
@@ -180,17 +180,18 @@ export const createGuest = async (newGuest: CreateGuest) => {
   return guestData;
 };
 
-export const updateGuest = async (id: string, updatedGuest: UpdatedGuest) => {
+export const getBookings = async (guestId: string): Promise<Booking[]> => {
   const { data, error } = await supabase
-    .from("guests")
-    .update(updatedGuest)
-    .eq("id", id)
-    .select("*")
-    .single();
+    .from("bookings")
+    .select(
+      "id, created_at, startDate, endDate, numNights, numGuests, totalPrice, guestId, cabinId, cabins(name, image)"
+    )
+    .eq("guestId", guestId)
+    .order("startDate");
   if (error) {
     console.error(error);
-    throw new Error("Guest could not be updated");
+    throw new Error("Bookings could not get loaded");
   }
-  const guestData = data as Guest;
-  return guestData;
+  const bookingsData = data as unknown as Booking[];
+  return bookingsData;
 };

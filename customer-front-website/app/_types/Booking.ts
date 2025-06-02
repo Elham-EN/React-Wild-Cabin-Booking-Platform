@@ -1,6 +1,7 @@
 export interface Booking {
   id: string;
   guestId: number;
+  cabinId: number;
   created_at: string;
   startDate: string;
   endDate: string;
