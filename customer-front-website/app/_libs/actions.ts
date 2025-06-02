@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { UpdatedGuest } from "../_types/Guest";
 import { auth, signIn, signOut } from "./auth";
 import { supabase } from "./supabase";
@@ -41,4 +42,7 @@ export async function updateGuestAction(formData: FormData): Promise<void> {
   if (error) {
     throw new Error("Guest could not be updated");
   }
+
+  // Clear the old cache & refetch the data
+  revalidatePath("/account/profile");
 }
