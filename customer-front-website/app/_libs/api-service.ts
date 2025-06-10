@@ -195,3 +195,19 @@ export const getBookings = async (guestId: string): Promise<Booking[]> => {
   const bookingsData = data as unknown as Booking[];
   return bookingsData;
 };
+
+export const getBooking = async (bookingId: string): Promise<Booking> => {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("id", bookingId)
+    .single();
+
+  if (error) {
+    console.error(error);
+    throw new Error("Booking could not get fetched");
+  }
+
+  const bookingData = data as Booking;
+  return bookingData;
+};

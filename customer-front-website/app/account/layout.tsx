@@ -31,11 +31,11 @@ function Layout(props: LayoutProps): React.ReactElement {
       {/* Responsive grid layout */}
       <div className="grid md:grid-cols-[16rem_1fr] h-full">
         {/* Sidebar - fixed on mobile when open, always visible on desktop */}
-        <div 
+        <div
           className={`
             fixed md:static top-0 left-0 h-full bg-primary-950 z-20
             transform transition-transform duration-300 ease-in-out
-            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+            ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
             md:translate-x-0
           `}
         >
@@ -44,16 +44,14 @@ function Layout(props: LayoutProps): React.ReactElement {
 
         {/* Overlay to close sidebar on mobile */}
         {isSidebarOpen && (
-          <div 
+          <div
             className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"
             onClick={() => setIsSidebarOpen(false)}
           ></div>
         )}
 
         {/* Main content area */}
-        <div className="px-4 md:px-8 py-6 md:py-8">
-          {props.children}
-        </div>
+        <div className="px-4 md:px-8 py-6 md:py-8">{props.children}</div>
       </div>
     </div>
   );

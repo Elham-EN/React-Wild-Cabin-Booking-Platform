@@ -5,6 +5,8 @@ import { UpdatedGuest } from "../_types/Guest";
 import { auth, signIn, signOut } from "./auth";
 import { supabase } from "./supabase";
 import { getBookings } from "./api-service";
+import { CreateBooking, UpdateBooking } from "../_types/Booking";
+import { redirect } from "next/navigation";
 
 export async function signInAction(): Promise<void> {
   await signIn("google", { redirectTo: "/account" });
@@ -66,4 +68,76 @@ export const deleteReservation = async (bookingId: string): Promise<void> => {
     throw new Error("Booking could not be deleted");
   }
   revalidatePath("/account/reservations");
+};
+
+export const updateReservationAction = async (
+  formData: FormData
+): Promise<void> => {
+  const bookingId = formData.get("bookingId") as string;
+  const numGuests = Number(formData.get("numGuests"));
+  const observations = (formData.get("observations") as string).slice(0, 1000);
+
+  const updatedBooking: UpdateBooking = {
+    numGuests,
+    observations,
+  };
+
+  const { error } = await supabase
+    .from("bookings")
+    .update(updatedBooking)
+    .eq("id", bookingId);
+
+  if (error) {
+    console.error(error);
+    throw new Error("Booking could not be updated");
+  }
+
+  revalidatePath("/account/reservations");
+  revalidatePath(`/account/reservations/${bookingId}`);
+
+  redirect("/account/reservations");
+};
+
+export const createReservation = async (formData: FormData): Promise<void> => {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("You must be logged in");
+
+  // Extract values from FormData
+  const cabinId = formData.get("cabinId") as string;
+  const startDate = formData.get("startDate") as string;
+  const endDate = formData.get("endDate") as string;
+  const numNights = Number(formData.get("numNights"));
+  const cabinPrice = Number(formData.get("cabinPrice"));
+  const numGuests = Number(formData.get("numGuests"));
+  const observations = formData.get("observations") as string;
+
+  const newBookingData: CreateBooking = {
+    cabinId,
+    startDate,
+    endDate,
+    numNights,
+    cabinPrice,
+    numGuests,
+    observations,
+    guestId: session.user.id,
+    extrasPrice: 0,
+    totalPrice: cabinPrice,
+    isPaid: false,
+    hasBreakfast: false,
+    status: "unconfirmed",
+  };
+
+  const { error } = await supabase.from("bookings").insert([newBookingData]);
+
+  if (error) {
+    console.error("Supabase error details:");
+    console.error("Error code:", error.code);
+    console.error("Error message:", error.message);
+    console.error("Error details:", error.details);
+    console.error("Error hint:", error.hint);
+    throw new Error(`Booking could not be created: ${error.message}`);
+  }
+
+  revalidatePath("/cabins");
+  revalidatePath(`/cabins/${cabinId}`);
 };

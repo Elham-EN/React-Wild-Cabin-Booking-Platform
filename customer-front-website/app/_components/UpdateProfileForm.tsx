@@ -4,7 +4,8 @@ import React from "react";
 import Image from "next/image";
 import { Guest } from "../_types/Guest";
 import { updateGuestAction } from "../_libs/actions";
-import { useFormStatus } from "react-dom";
+
+import FormButton from "./SubmitButton";
 
 interface UpdateProfileFormProps {
   children: React.ReactNode;
@@ -88,24 +89,8 @@ export default function UpdateProfileForm({
 
       {/* Submit button - full width on mobile */}
       <div className="w-full mt-2 sm:mt-4 sm:flex sm:justify-end">
-        <FormButton />
+        <FormButton buttonName="Update" pendingLabel="Updating..." />
       </div>
     </form>
-  );
-}
-
-function FormButton(): React.ReactElement {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="w-full sm:w-auto bg-accent-500 px-5 py-3 sm:px-8 sm:py-4 
-            text-primary-800 font-semibold hover:bg-accent-600 transition-all 
-             disabled:cursor-not-allowed disabled:bg-gray-500 disabled:text-gray-300 
-             rounded-sm text-center cursor-pointer"
-    >
-      {pending ? "Updating..." : "Update profile"}
-    </button>
   );
 }

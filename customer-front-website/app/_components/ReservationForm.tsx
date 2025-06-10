@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState, FormEvent, ReactElement } from "react";
+import React, { useState, ReactElement } from "react";
 import { Cabin } from "../_types/Cabin";
 import { useReservation } from "../_libs/contexts";
+import { differenceInDays } from "date-fns";
+import { createReservation } from "../_libs/actions";
 
 interface ReservationFormProps {
   cabin: Cabin;
@@ -11,8 +13,18 @@ interface ReservationFormProps {
 function ReservationForm({ cabin }: ReservationFormProps): ReactElement {
   const [numGuests, setNumGuests] = useState<string>("");
   const [observations, setObservations] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { range } = useReservation();
+  const { range, resetRange } = useReservation();
+
+  // Check if dates are selected
+  const hasValidDates = range.from && range.to;
+
+  // Only calculate when we have valid dates - safely handle undefined
+  const startDate = range.from;
+  const endDate = range.to;
+  const numNights = hasValidDates ? differenceInDays(endDate!, startDate!) : 0;
+  const cabinPrice = hasValidDates
+    ? numNights * (cabin.regularPrice - cabin.discount)
+    : 0;
 
   // Format the date range for display
   const formatDateRange = (): string => {
@@ -33,21 +45,6 @@ function ReservationForm({ cabin }: ReservationFormProps): ReactElement {
       : "...";
 
     return `${fromDate} to ${toDate}`;
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Mock API call - would be replaced with actual reservation API
-    setTimeout(() => {
-      console.log("Reservation submitted:", {
-        numGuests,
-        observations,
-      });
-      setIsSubmitting(false);
-      // Here you would normally redirect or show success message
-    }, 1000);
   };
 
   // Generate options for guest selection
@@ -76,9 +73,39 @@ function ReservationForm({ cabin }: ReservationFormProps): ReactElement {
         </p>
       </div>
       <form
-        onSubmit={handleSubmit}
+        action={async (formData: FormData) => {
+          await createReservation(formData);
+          setObservations("");
+          resetRange();
+        }}
         className="bg-primary-800 py-8 px-4 md:px-8 text-lg flex gap-6 flex-col"
       >
+        {/* Hidden inputs for reservation data - only render when dates are valid */}
+        {hasValidDates && (
+          <>
+            <input
+              type="hidden"
+              name="startDate"
+              value={range.from!.toISOString()}
+            />
+            <input
+              type="hidden"
+              name="endDate"
+              value={range.to!.toISOString()}
+            />
+            <input
+              type="hidden"
+              name="numNights"
+              value={numNights.toString()}
+            />
+            <input
+              type="hidden"
+              name="cabinPrice"
+              value={cabinPrice.toString()}
+            />
+            <input type="hidden" name="cabinId" value={cabin.id} />
+          </>
+        )}
         <div>
           <label
             htmlFor="numGuests"
@@ -125,12 +152,13 @@ function ReservationForm({ cabin }: ReservationFormProps): ReactElement {
               sm:gap-6 mt-4"
         >
           <button
-            disabled={isSubmitting}
+            type="submit"
+            disabled={!hasValidDates}
             className="bg-accent-500 px-6 py-3 text-primary-800 font-semibold rounded-md
                hover:bg-accent-600 transition-all disabled:cursor-not-allowed 
                disabled:bg-gray-500 disabled:text-gray-300 w-full sm:w-auto"
           >
-            {isSubmitting ? "Processing..." : "Reserve now"}
+            {!hasValidDates ? "Select dates first" : "Reserve now"}
           </button>
         </div>
       </form>
